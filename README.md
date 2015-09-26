@@ -1,0 +1,2 @@
+# ExplorerWindowCleaner
+エクスプローラで開いたウインドウをクリーンします。
