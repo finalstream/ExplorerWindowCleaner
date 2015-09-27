@@ -5,12 +5,12 @@
 ## 機能
 エクスプローラに関連した以下の機能があります。
 
-![explorerwindowclean](https://cloud.githubusercontent.com/assets/3516444/10121298/eb96e36a-651f-11e5-84f9-e101b03b7bac.png)
-
 * 重複したパスのウインドウを自動クローズ。
 * 開いているウインドウリストを表示（最終更新日時、ローカルパス表示）
 * ウインドウリストでパスをクリップボードにコピー
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト無効）
+
+![explorerwindowclean](https://cloud.githubusercontent.com/assets/3516444/10121298/eb96e36a-651f-11e5-84f9-e101b03b7bac.png)
 
 ## 設定
 ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
