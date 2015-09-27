@@ -16,7 +16,7 @@ namespace ExplorerWindowCleaner
         }
 
         public int SeqNo { get; private set; }
-        public string LastUpdate {get { return LastUpdateDateTime.ToString(); }}
+        public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
         public string Location { get; private set; }
