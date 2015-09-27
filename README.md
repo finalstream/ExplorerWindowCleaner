@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)]()
 
-エクスプローラで開いたウインドウをクリーンします。  
+エクスプローラで開いたウインドウが重複した場合に自動でクローズするツールです。  
 起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。
 
 Support Windows 10 / 8 / 7  
