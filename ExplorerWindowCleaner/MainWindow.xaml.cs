@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace ExplorerWindowCleaner
+namespace ExplorerWindowCleaner 
 {
     /// <summary>
     ///     MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window ,INotifyPropertyChanged
     {
         private readonly ExplorerCleaner _ec;
 
@@ -34,6 +35,24 @@ namespace ExplorerWindowCleaner
             get { return _ec.Explorers; }
         }
 
+        #region CurrentExplorer変更通知プロパティ
+
+        private Explorer _currentExplorer;
+
+        public Explorer CurrentExplorer
+        {
+            get { return _currentExplorer; }
+            set
+            {
+                if (_currentExplorer == value) return;
+                _currentExplorer = value;
+                OnPropertyChanged("CurrentExplorer");
+            }
+        }
+
+        #endregion
+
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 
@@ -45,5 +64,22 @@ namespace ExplorerWindowCleaner
             SwitchToThisWindow(new IntPtr(explorer.Handle), true);
             //Process.Start("EXPLORER.EXE", explorer.LocalPath);
         }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentExplorer == null) return;
+            Clipboard.SetText(CurrentExplorer.LocalPath);
+        }
+
+        #region INotifyPropertyChanged メンバ
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string name)
+        {
+            if (PropertyChanged == null) return;
+
+            PropertyChanged(this, new PropertyChangedEventArgs(name));
+        }
+        #endregion
     }
 }

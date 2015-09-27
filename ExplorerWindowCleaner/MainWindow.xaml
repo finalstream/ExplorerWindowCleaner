@@ -3,12 +3,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ExplorerWindowCleaner" Height="350" Width="525" Icon="icon.ico">
     <Grid>
-        <ListView ItemsSource="{Binding Explorers}" >
+        <ListView ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="ListView_MouseDoubleClick"/>
                 </Style>
+                <ContextMenu x:Key="ItemContextMenu">
+                    <MenuItem Header="Copy LocalPath" Click="MenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
             </ListView.Resources>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}" >
+                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="LastUpdate" DisplayMemberBinding="{Binding LastUpdate}"></GridViewColumn>
