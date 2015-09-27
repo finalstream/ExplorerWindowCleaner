@@ -6,12 +6,12 @@ using System.Windows;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 
-[assembly: AssemblyTitle("NotifyIconContainer")]
+[assembly: AssemblyTitle("ExplorerWindowCleaner")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FINALSTRAM")]
-[assembly: AssemblyProduct("NotifyIconContainer")]
-[assembly: AssemblyCopyright("Copyright ©  2015 FINALSTREAM")]
+[assembly: AssemblyProduct("ExplorerWindowCleaner")]
+[assembly: AssemblyCopyright("Copyright © 2015 FINALSTREAM")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
