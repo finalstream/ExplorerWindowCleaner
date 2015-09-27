@@ -2,15 +2,15 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)]()
 
-エクスプローラで開いたウインドウをクリーンします。
+エクスプローラで開いたウインドウをクリーンします。  
 起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。
 
 ## 機能
 エクスプローラに関連した以下の機能があります。
 
 * 重複したパスのウインドウを自動クローズ。
-* 開いているウインドウリストを表示（最終更新日時、ローカルパス表示）
-* ウインドウリストでパスをクリップボードにコピー
+* 開いているウインドウリストを表示。（最終更新日時、ローカルパス表示）
+* ウインドウリストでパスをクリップボードにコピー。
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト無効）
 
 ![explorerwindowclean](https://cloud.githubusercontent.com/assets/3516444/10121298/eb96e36a-651f-11e5-84f9-e101b03b7bac.png)
