@@ -100,7 +100,7 @@ namespace ExplorerWindowCleaner
             foreach (var duplicateExplorer in duplicateExplorers)
             {
                 var closeTargets = duplicateExplorer.Explorer
-                    .Where(x => x.Value.SeqNo != duplicateExplorer.Explorer.Max(m => m.Value.SeqNo)).Select(x=>x.Value);
+                    .Where(x => x.Value.LastUpdateDateTime != duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime)).Select(x=>x.Value);
                 foreach (var closeTarget in closeTargets)
                 {
                     var handle = closeTarget.Exit();
