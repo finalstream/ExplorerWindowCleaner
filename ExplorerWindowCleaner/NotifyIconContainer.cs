@@ -50,6 +50,8 @@ namespace ExplorerWindowCleaner
         private void notifyIcon_DoubleClick(object sender, EventArgs e)
         {
             _mainWindow.Show();
+            _mainWindow.WindowState = WindowState.Normal;
+            _mainWindow.Activate();
         }
     }
 }
