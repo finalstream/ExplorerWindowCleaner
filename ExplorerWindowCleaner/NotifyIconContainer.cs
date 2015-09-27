@@ -38,7 +38,7 @@ namespace ExplorerWindowCleaner
 
         private void toolStripMenuItemOpen_Click(object sender, EventArgs e)
         {
-            _mainWindow.Show();
+            ShowWindowList();
         }
 
         private void toolStripMenuItemExit_Click(object sender, EventArgs e)
@@ -48,6 +48,11 @@ namespace ExplorerWindowCleaner
         }
 
         private void notifyIcon_DoubleClick(object sender, EventArgs e)
+        {
+            ShowWindowList();
+        }
+
+        private void ShowWindowList()
         {
             _mainWindow.Show();
             _mainWindow.WindowState = WindowState.Normal;
