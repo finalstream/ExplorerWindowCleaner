@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Forms;
+using Application = System.Windows.Application;
 
 namespace ExplorerWindowCleaner
 {
@@ -12,15 +14,29 @@ namespace ExplorerWindowCleaner
         public NotifyIconContainer(ExplorerCleaner explorerCleaner)
         {
             _explorerCleaner = explorerCleaner;
-            _explorerCleaner.Start();
+            
             _mainWindow = new MainWindow(_explorerCleaner);
             InitializeComponent();
-
+            
             // コンテキストメニューのイベントを設定
             toolStripMenuItemOpen.Click += toolStripMenuItemOpen_Click;
             toolStripMenuItemExit.Click += toolStripMenuItemExit_Click;
             toolStripMenuItemAutoClose.Click += ToolStripMenuItemAutoCloseOnClick;
             toolStripMenuItemAutoClose.Checked = Properties.Settings.Default.IsAutoCloseUnused;
+
+            _explorerCleaner.Updated += (sender, args) =>
+            {
+                notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.GetWindowCount);
+                if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowCount > 0)
+                {
+                    notifyIcon.ShowBalloonTip(3000, "Closed Window", string.Format("{0} Windows Closed.", args.CloseWindowCount), ToolTipIcon.Info);
+                }
+                _mainWindow.NowWindowCount = _explorerCleaner.GetWindowCount;
+                _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
+                _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
+            };
+
+            _explorerCleaner.Start();
         }
 
         private void ToolStripMenuItemAutoCloseOnClick(object sender, EventArgs eventArgs)

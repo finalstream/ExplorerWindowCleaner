@@ -49,5 +49,14 @@ namespace ExplorerWindowCleaner.Properties {
                 return ((global::System.TimeSpan)(this["ExpireInterval"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsNotifyCloseWindow {
+            get {
+                return ((bool)(this["IsNotifyCloseWindow"]));
+            }
+        }
     }
 }

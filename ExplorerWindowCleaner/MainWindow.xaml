@@ -3,7 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ExplorerWindowCleaner" Height="350" Width="525" Icon="icon.ico">
     <Grid>
-        <ListView ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="{Binding NowWindowCount, StringFormat= NowWindows: {0}}" Padding="5,0,0,0"></TextBlock>
+            <TextBlock Text="{Binding MaxWindowCount, StringFormat= MaxOpenWindows: {0}}" Padding="15,0,0,0"></TextBlock>
+            <TextBlock Text="{Binding TotalClosedWindow, StringFormat= TotalClosedWindows: {0}}" Padding="15,0,0,0"></TextBlock>
+        </StackPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}">
             <ListView.Resources>
 
                 <ContextMenu x:Key="ItemContextMenu">

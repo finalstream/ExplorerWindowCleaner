@@ -35,6 +35,57 @@ namespace ExplorerWindowCleaner
             get { return _ec.Explorers; }
         }
 
+        #region NowWindowCount変更通知プロパティ
+
+        private int _nowWindowCount;
+
+        public int NowWindowCount
+        {
+            get { return _nowWindowCount; }
+            set
+            {
+                if (_nowWindowCount == value) return;
+                _nowWindowCount = value;
+                OnPropertyChanged("NowWindowCount");
+            }
+        }
+
+        #endregion
+
+        #region MaxWindowCount変更通知プロパティ
+
+        private int _maxWindowCount;
+
+        public int MaxWindowCount
+        {
+            get { return _maxWindowCount; }
+            set
+            {
+                if (_maxWindowCount == value) return;
+                _maxWindowCount = value;
+                OnPropertyChanged("MaxWindowCount");
+            }
+        }
+
+        #endregion
+
+        #region TotalClosedWindow変更通知プロパティ
+
+        private int _totalClosedWindow;
+
+        public int TotalClosedWindow
+        {
+            get { return _totalClosedWindow; }
+            set
+            {
+                if (_totalClosedWindow == value) return;
+                _totalClosedWindow = value;
+                OnPropertyChanged("TotalClosedWindow");
+            }
+        }
+
+        #endregion
+
         #region CurrentExplorer変更通知プロパティ
 
         private Explorer _currentExplorer;

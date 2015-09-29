@@ -19,6 +19,26 @@ namespace ExplorerWindowCleaner
         private readonly TimeSpan _expireInterval;
         private CancellationTokenSource _cancellationTokenSource;
         public bool IsAutoCloseUnused { get; set; }
+        public int GetWindowCount { get { return _explorerDic.Count; } }
+        public int MaxWindowCount { get; private set; }
+        public int TotalCloseWindowCount { get; private set; }
+
+        #region Updatedイベント
+
+        // Event object
+        public event EventHandler<UpdatedEventArgs> Updated;
+
+        protected virtual void OnUpdated(int closeWindowCount)
+        {
+            var handler = this.Updated;
+            if (handler != null)
+            {
+                handler(this, new UpdatedEventArgs(closeWindowCount));
+            }
+        }
+
+        #endregion
+
 
         public ExplorerCleaner(TimeSpan interval, bool isAutoCloseUnused, TimeSpan expireInterval)
         {
@@ -44,7 +64,9 @@ namespace ExplorerWindowCleaner
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
 
                     // メイン処理
-                    Clean();
+                    var closeWindowCount = Clean();
+
+                    OnUpdated(closeWindowCount);
 
                     Task.Delay(_interval).Wait();
                 }
@@ -54,8 +76,9 @@ namespace ExplorerWindowCleaner
                 TaskScheduler.Default);
         }
 
-        private void Clean()
+        private int Clean()
         {
+            int closeWindowCount = 0;
             ShellWindows shellWindows = new ShellWindowsClass();
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
@@ -105,6 +128,7 @@ namespace ExplorerWindowCleaner
                 {
                     var handle = closeTarget.Exit();
                     _explorerDic.Remove(handle);
+                    closeWindowCount++;
                 }
             }
 
@@ -119,6 +143,7 @@ namespace ExplorerWindowCleaner
                     Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
                     var handle = expireExplorer.Exit();
                     _explorerDic.Remove(handle);
+                    closeWindowCount++;
                 }
             }
 
@@ -128,6 +153,11 @@ namespace ExplorerWindowCleaner
             {
                 Explorers.Add(aliveExplorer);
             }
+
+            if (GetWindowCount > MaxWindowCount) MaxWindowCount = GetWindowCount;
+            TotalCloseWindowCount += closeWindowCount;
+
+            return closeWindowCount;
         }
 
         #region Dispose
