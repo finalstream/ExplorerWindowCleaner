@@ -15,6 +15,7 @@ Require .NET Framework 4.5
 * 開いているウインドウリスト(フルパス)を表示。（最終更新日時、ローカルパス表示）
 * ウインドウリストでフルパスをクリップボードにコピー。
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト無効）
+* クローズしたウインドウ数を通知。(デフォルト有効)
 
 ![explorerwindowclean](https://cloud.githubusercontent.com/assets/3516444/10121298/eb96e36a-651f-11e5-84f9-e101b03b7bac.png)
 
