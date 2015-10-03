@@ -19,9 +19,10 @@ namespace ExplorerWindowCleaner
         private readonly TimeSpan _expireInterval;
         private CancellationTokenSource _cancellationTokenSource;
         public bool IsAutoCloseUnused { get; set; }
-        public int GetWindowCount { get { return _explorerDic.Count; } }
+        public int WindowCount { get { return _explorerDic.Count; } }
         public int MaxWindowCount { get; private set; }
         public int TotalCloseWindowCount { get; private set; }
+        public DateTime ExporeDateTime { get; private set; }
 
         #region Updatedイベント
 
@@ -135,10 +136,10 @@ namespace ExplorerWindowCleaner
             // 期限切れのものがあれば閉じる
             if (IsAutoCloseUnused && _expireInterval != TimeSpan.Zero)
             {
-                var expireDateTime = DateTime.Now.Subtract(_expireInterval);
-                Console.WriteLine("expire datetime {0}", expireDateTime);
-                
-                foreach (var expireExplorer in _explorerDic.Values.Where(x => x.LastUpdateDateTime < expireDateTime))
+                ExporeDateTime = DateTime.Now.Subtract(_expireInterval);
+                Console.WriteLine("expire datetime {0}", ExporeDateTime);
+
+                foreach (var expireExplorer in _explorerDic.Values.Where(x => x.LastUpdateDateTime < ExporeDateTime))
                 {
                     Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
                     var handle = expireExplorer.Exit();
@@ -154,7 +155,7 @@ namespace ExplorerWindowCleaner
                 Explorers.Add(aliveExplorer);
             }
 
-            if (GetWindowCount > MaxWindowCount) MaxWindowCount = GetWindowCount;
+            if (WindowCount > MaxWindowCount) MaxWindowCount = WindowCount;
             TotalCloseWindowCount += closeWindowCount;
 
             return closeWindowCount;

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 
 namespace ExplorerWindowCleaner
@@ -26,12 +27,19 @@ namespace ExplorerWindowCleaner
 
             _explorerCleaner.Updated += (sender, args) =>
             {
-                notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.GetWindowCount);
+                notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.WindowCount);
+                _mainWindow.Dispatcher.Invoke(() =>
+                {
+                    toolStripMenuItemAutoClose.Text = _explorerCleaner.IsAutoCloseUnused
+                        ? string.Format("Auto Close Unused expire:{0}",
+                            _explorerCleaner.ExporeDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                        : "Auto Close Unused";
+                });
                 if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowCount > 0)
                 {
                     notifyIcon.ShowBalloonTip(3000, "Closed Window", string.Format("{0} Windows Closed.", args.CloseWindowCount), ToolTipIcon.Info);
                 }
-                _mainWindow.NowWindowCount = _explorerCleaner.GetWindowCount;
+                _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
                 _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
                 _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
             };

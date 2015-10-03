@@ -32,6 +32,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="LastUpdate" DisplayMemberBinding="{Binding LastUpdate}"></GridViewColumn>
+                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding LocationName}"></GridViewColumn>
                     <GridViewColumn Header="LocalPath" DisplayMemberBinding="{Binding LocalPath}"></GridViewColumn>
                 </GridView>
             </ListView.View>

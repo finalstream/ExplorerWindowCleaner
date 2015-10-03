@@ -11,6 +11,7 @@ namespace ExplorerWindowCleaner
             SeqNo = seqNo;
             Handle = instance.HWND;
             Location = instance.LocationURL;
+            LocationName = instance.LocationName;
             Instance = instance;
             LastUpdateDateTime = DateTime.Now;
         }
@@ -20,6 +21,7 @@ namespace ExplorerWindowCleaner
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
         public string Location { get; private set; }
+        public string LocationName { get; private set; }
         public string LocalPath { get { return new Uri(Location).LocalPath; } }
         public InternetExplorer Instance { get; private set; }
 
