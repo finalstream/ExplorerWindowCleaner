@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace ExplorerWindowCleaner
 {
@@ -12,6 +15,9 @@ namespace ExplorerWindowCleaner
         private readonly ExplorerCleaner _explorerCleaner;
         private readonly MainWindow _mainWindow;
 
+        private readonly string _ewclink = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),
+                    "ExplorerWindowCleaner.lnk");
+
         public NotifyIconContainer(ExplorerCleaner explorerCleaner)
         {
             _explorerCleaner = explorerCleaner;
@@ -19,10 +25,12 @@ namespace ExplorerWindowCleaner
             _mainWindow = new MainWindow(_explorerCleaner);
             InitializeComponent();
             
-            // コンテキストメニューのイベントを設定
+            // コンテキストメニューの設定
+            SetContextMenuStartUp();
             toolStripMenuItemOpen.Click += toolStripMenuItemOpen_Click;
             toolStripMenuItemExit.Click += toolStripMenuItemExit_Click;
             toolStripMenuItemAutoClose.Click += ToolStripMenuItemAutoCloseOnClick;
+            toolStripMenuItemStartup.Click += ToolStripMenuItemStartupOnClick;
             toolStripMenuItemAutoClose.Checked = Properties.Settings.Default.IsAutoCloseUnused;
 
             _explorerCleaner.Updated += (sender, args) =>
@@ -45,6 +53,65 @@ namespace ExplorerWindowCleaner
             };
 
             _explorerCleaner.Start();
+        }
+
+        private void ToolStripMenuItemStartupOnClick(object sender, EventArgs eventArgs)
+        {
+            toolStripMenuItemStartup.Checked = !toolStripMenuItemStartup.Checked;
+            RegistStartup(toolStripMenuItemStartup.Checked);
+        }
+
+        private void RegistStartup(bool isRegist)
+        {
+            try
+            {
+                if (isRegist)
+                {
+                    CreateShortCut(
+                        _ewclink,
+                        Assembly.GetExecutingAssembly().Location,
+                        "");
+                }
+                else
+                {
+                    File.Delete(_ewclink);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("fail regist startup. {0}", ex));
+            }
+        }
+
+        /// <summary>
+        /// ショートカットの作成
+        /// </summary>
+        /// <remarks>WSHを使用して、ショートカット(lnkファイル)を作成します。(遅延バインディング)</remarks>
+        /// <param name="path">出力先のファイル名(*.lnk)</param>
+        /// <param name="targetPath">対象のアセンブリ(*.exe)</param>
+        /// <param name="description">説明</param>
+        private static void CreateShortCut(String path, String targetPath, String description)
+        {
+            //using System.Reflection;
+
+            // WSHオブジェクトを作成し、CreateShortcutメソッドを実行する
+            var shellType = Type.GetTypeFromProgID("WScript.Shell");
+            var shell = Activator.CreateInstance(shellType);
+            var shortCut = shellType.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { path });
+
+            var shortcutType = shell.GetType();
+            // TargetPathプロパティをセットする
+            shortcutType.InvokeMember("TargetPath", BindingFlags.SetProperty, null, shortCut, new object[] { targetPath });
+            // Descriptionプロパティをセットする
+            shortcutType.InvokeMember("Description", BindingFlags.SetProperty, null, shortCut, new object[] { description });
+            // Saveメソッドを実行する
+            shortcutType.InvokeMember("Save", BindingFlags.InvokeMethod, null, shortCut, null);
+
+        }
+
+        private void SetContextMenuStartUp()
+        {
+            toolStripMenuItemStartup.Checked = File.Exists(_ewclink);
         }
 
         private void ToolStripMenuItemAutoCloseOnClick(object sender, EventArgs eventArgs)

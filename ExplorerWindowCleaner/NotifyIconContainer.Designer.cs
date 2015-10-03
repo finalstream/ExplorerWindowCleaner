@@ -32,9 +32,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotifyIconContainer));
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemAutoClose = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.toolStripMenuItemAutoClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItemStartup = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip.SuspendLayout();
             // 
             // contextMenuStrip
@@ -42,15 +45,24 @@
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItemOpen,
             this.toolStripMenuItemAutoClose,
+            this.toolStripSeparator1,
+            this.toolStripMenuItemStartup,
+            this.toolStripSeparator2,
             this.toolStripMenuItemExit});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(186, 70);
+            this.contextMenuStrip.Size = new System.Drawing.Size(186, 104);
             // 
             // toolStripMenuItemOpen
             // 
             this.toolStripMenuItemOpen.Name = "toolStripMenuItemOpen";
             this.toolStripMenuItemOpen.Size = new System.Drawing.Size(185, 22);
             this.toolStripMenuItemOpen.Text = "Open";
+            // 
+            // toolStripMenuItemAutoClose
+            // 
+            this.toolStripMenuItemAutoClose.Name = "toolStripMenuItemAutoClose";
+            this.toolStripMenuItemAutoClose.Size = new System.Drawing.Size(185, 22);
+            this.toolStripMenuItemAutoClose.Text = "Auto Close Unused";
             // 
             // toolStripMenuItemExit
             // 
@@ -66,11 +78,21 @@
             this.notifyIcon.Visible = true;
             this.notifyIcon.DoubleClick += new System.EventHandler(this.notifyIcon_DoubleClick);
             // 
-            // toolStripMenuItemAutoClose
+            // toolStripSeparator1
             // 
-            this.toolStripMenuItemAutoClose.Name = "toolStripMenuItemAutoClose";
-            this.toolStripMenuItemAutoClose.Size = new System.Drawing.Size(185, 22);
-            this.toolStripMenuItemAutoClose.Text = "Auto Close Unused";
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(182, 6);
+            // 
+            // toolStripMenuItemStartup
+            // 
+            this.toolStripMenuItemStartup.Name = "toolStripMenuItemStartup";
+            this.toolStripMenuItemStartup.Size = new System.Drawing.Size(185, 22);
+            this.toolStripMenuItemStartup.Text = "Startup Windows";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(182, 6);
             this.contextMenuStrip.ResumeLayout(false);
 
         }
@@ -82,5 +104,8 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpen;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExit;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAutoClose;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemStartup;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
     }
 }

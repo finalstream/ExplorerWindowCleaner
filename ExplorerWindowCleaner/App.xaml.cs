@@ -1,5 +1,5 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
+using ExplorerWindowCleaner.Properties;
 
 namespace ExplorerWindowCleaner
 {
@@ -22,11 +22,12 @@ namespace ExplorerWindowCleaner
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             _explorerCleaner = new ExplorerCleaner(
-                ExplorerWindowCleaner.Properties.Settings.Default.Interval,
-                ExplorerWindowCleaner.Properties.Settings.Default.IsAutoCloseUnused,
-                ExplorerWindowCleaner.Properties.Settings.Default.ExpireInterval);
+                Settings.Default.Interval,
+                Settings.Default.IsAutoCloseUnused,
+                Settings.Default.ExpireInterval);
             notifyIcon = new NotifyIconContainer(_explorerCleaner);
         }
 
@@ -40,5 +41,7 @@ namespace ExplorerWindowCleaner
             _explorerCleaner.Dispose();
             notifyIcon.Dispose();
         }
+
+        
     }
 }
