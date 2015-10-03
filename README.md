@@ -32,3 +32,8 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 　IsAutoCloseUnusedが有効の場合のみ使用します。デフォルトは1hourです。  
 * IsNotifyCloseWindow  
 　ウインドウをクローズしたときにバルーンで通知します。デフォルトは有効です。
+
+## SpecialThanks
+
+### UI Framework : MahApps.Metro http://mahapps.com/
+### Icon         : David Vignoni http://www.icon-king.com/
