@@ -8,6 +8,8 @@
 Support Windows 10 / 8 / 7  
 Require .NET Framework 4.5
 
+### [Download](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)
+
 ## 機能
 エクスプローラに関連した以下の機能があります。
 
