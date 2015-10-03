@@ -29,3 +29,5 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 * ExpireInterval  
 　有効期間です。ウインドウのパスが更新されてから有効期間を経過したウインドウをクローズ対象にします。  
 　IsAutoCloseUnusedが有効の場合のみ使用します。デフォルトは1hourです。  
+* IsNotifyCloseWindow  
+　ウインドウをクローズしたときにバルーンで通知します。デフォルトは有効です。
