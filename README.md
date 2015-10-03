@@ -32,8 +32,10 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 　IsAutoCloseUnusedが有効の場合のみ使用します。デフォルトは1hourです。  
 * IsNotifyCloseWindow  
 　ウインドウをクローズしたときにバルーンで通知します。デフォルトは有効です。
+* AccentColor  
+　アクセントカラーです。"Red", "Green", "Blue", "Purple", "Orange", "Lime", "Emerald", "Teal", "Cyan", "Cobalt", "Indigo", "Violet", "Pink", "Magenta", "Crimson", "Amber", "Yellow", "Brown", "Olive", "Steel", "Mauve", "Taupe", "Sienna"から選択してください。デフォルトは"Cobalt"です。
 
 ## SpecialThanks
 
-### UI Framework : MahApps.Metro http://mahapps.com/
-### Icon         : David Vignoni http://www.icon-king.com/
+##### UI Framework : MahApps.Metro http://mahapps.com/
+##### Icon         : David Vignoni http://www.icon-king.com/
