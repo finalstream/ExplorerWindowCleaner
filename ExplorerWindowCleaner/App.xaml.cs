@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using ExplorerWindowCleaner.Properties;
+using MahApps.Metro;
 
 namespace ExplorerWindowCleaner
 {
@@ -22,6 +23,14 @@ namespace ExplorerWindowCleaner
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // get the theme from the current application
+            var theme = ThemeManager.DetectAppStyle(Application.Current);
+
+            // now set the Green accent and dark theme
+            ThemeManager.ChangeAppStyle(Application.Current,
+                                        ThemeManager.GetAccent(Settings.Default.AccentColor),
+                                        ThemeManager.GetAppTheme("BaseLight"));
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             _explorerCleaner = new ExplorerCleaner(

@@ -21,14 +21,17 @@ namespace ExplorerWindowCleaner
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
         public string Location { get; private set; }
+        public string LocationKey {get { return !string.IsNullOrEmpty(Location) ? Location : LocationName; }}
         public string LocationName { get; private set; }
-        public string LocalPath { get { return new Uri(Location).LocalPath; } }
+        public string LocalPath { get { return !string.IsNullOrEmpty(Location) ? new Uri(Location).LocalPath : LocationName; } }
         public InternetExplorer Instance { get; private set; }
 
-        public void Update(string newlocationUrl)
+        public void Update(InternetExplorer ie)
         {
-            if (Location == newlocationUrl) return; // パスに変更がない場合は何もしない。
-            Location = newlocationUrl;
+            var locationkey = !string.IsNullOrEmpty(ie.LocationURL) ? ie.LocationURL : ie.LocationName;
+            if (LocationKey == locationkey) return; // パスに変更がない場合は何もしない。
+            Location = ie.LocationURL;
+            LocationName = ie.LocationName;
             LastUpdateDateTime = DateTime.Now;
         }
 

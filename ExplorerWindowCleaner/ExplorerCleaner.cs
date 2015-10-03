@@ -91,9 +91,6 @@ namespace ExplorerWindowCleaner
                 if (filename.Equals("explorer"))
                 {
 
-                    if (string.IsNullOrEmpty(ie.LocationURL)) continue;
-
-
                     if (!_explorerDic.Keys.Contains(ie.HWND))
                     {
                         var explorer = new Explorer(Interlocked.Increment(ref _seqNo), ie);
@@ -104,7 +101,7 @@ namespace ExplorerWindowCleaner
                     else
                     {
                         closedExplorerHandleList.Remove(ie.HWND);
-                        _explorerDic[ie.HWND].Update(ie.LocationURL);
+                        _explorerDic[ie.HWND].Update(ie);
                     }
                 }
             }
@@ -116,7 +113,7 @@ namespace ExplorerWindowCleaner
             }
 
             var duplicateExplorers = _explorerDic
-                .GroupBy(g => g.Value.Location)
+                .GroupBy(g => g.Value.LocationKey)
                 .Select(g => new {Explorer = g, Count = g.Count()})
                 .Where(x => x.Count > 1);
 

@@ -43,7 +43,7 @@ namespace ExplorerWindowCleaner.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("01:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("08:00:00")]
         public global::System.TimeSpan ExpireInterval {
             get {
                 return ((global::System.TimeSpan)(this["ExpireInterval"]));
@@ -56,6 +56,15 @@ namespace ExplorerWindowCleaner.Properties {
         public bool IsNotifyCloseWindow {
             get {
                 return ((bool)(this["IsNotifyCloseWindow"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Cobalt")]
+        public string AccentColor {
+            get {
+                return ((string)(this["AccentColor"]));
             }
         }
     }

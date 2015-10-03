@@ -6,13 +6,14 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MahApps.Metro.Controls;
 
 namespace ExplorerWindowCleaner 
 {
     /// <summary>
     ///     MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window ,INotifyPropertyChanged
+    public partial class MainWindow : MetroWindow, INotifyPropertyChanged
     {
         private readonly ExplorerCleaner _ec;
 
