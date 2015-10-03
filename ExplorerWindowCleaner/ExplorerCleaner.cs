@@ -94,7 +94,7 @@ namespace ExplorerWindowCleaner
                     if (!_explorerDic.Keys.Contains(ie.HWND))
                     {
                         var explorer = new Explorer(Interlocked.Increment(ref _seqNo), ie);
-                        Console.WriteLine("add explorer : {0} {1} {2} {3}", explorer.SeqNo, explorer.Location,
+                        Console.WriteLine("add explorer : {0} {1} {2} {3}", explorer.SeqNo, explorer.LocationKey,
                             explorer.LocalPath, explorer.Instance.HWND);
                         _explorerDic.Add(explorer.Handle, explorer);
                     }
