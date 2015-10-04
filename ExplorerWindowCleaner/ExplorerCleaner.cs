@@ -136,7 +136,8 @@ namespace ExplorerWindowCleaner
                 ExporeDateTime = DateTime.Now.Subtract(_expireInterval);
                 Console.WriteLine("expire datetime {0}", ExporeDateTime);
 
-                foreach (var expireExplorer in _explorerDic.Values.Where(x => x.LastUpdateDateTime < ExporeDateTime))
+                var explorers = _explorerDic.Values.ToArray();
+                foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < ExporeDateTime))
                 {
                     Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
                     var handle = expireExplorer.Exit();
