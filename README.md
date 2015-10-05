@@ -41,3 +41,11 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 
 ##### UI Framework : MahApps.Metro http://mahapps.com/
 ##### Icon         : David Vignoni http://www.icon-king.com/
+
+## TODO
+10月中旬くらいまでに実装予定。。。
+
+* クローズドリスト表示
+クローズしたウインドウのパスを表示する。ウインドウと回数（ソート用）をファイルで保存しておく。こうすることでよく使うパスを表示できる気がする。
+* ソートできるようにする。
+最終更新日時でソートできるようにする。DataGridに変更する？
