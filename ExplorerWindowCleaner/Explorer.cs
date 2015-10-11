@@ -23,7 +23,7 @@ namespace ExplorerWindowCleaner
         public string LocationUrl { get; private set; }
         public string LocationKey {get { return !string.IsNullOrEmpty(LocationUrl) ? LocationUrl : LocationName; }}
         public string LocationName { get; private set; }
-        public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? new Uri(LocationUrl).LocalPath : LocationName; } }
+        public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         public InternetExplorer Instance { get; private set; }
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
 
