@@ -15,6 +15,7 @@ namespace ExplorerWindowCleaner
     {
         private static int _seqNo = 0;
         private readonly Dictionary<int, Explorer> _explorerDic;
+        private readonly Dictionary<string, Explorer> _closedExplorerDic; 
         private readonly TimeSpan _interval;
         private readonly TimeSpan _expireInterval;
         private CancellationTokenSource _cancellationTokenSource;
@@ -47,11 +48,16 @@ namespace ExplorerWindowCleaner
             IsAutoCloseUnused = isAutoCloseUnused;
             _expireInterval = expireInterval;
             _explorerDic = new Dictionary<int, Explorer>();
+            _closedExplorerDic = new Dictionary<string, Explorer>();
             Explorers = new ObservableCollection<Explorer>();
+            ClosedExplorers = new ObservableCollection<Explorer>();
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
+            BindingOperations.EnableCollectionSynchronization(ClosedExplorers, new object());
         }
 
         public ObservableCollection<Explorer> Explorers { get; private set; }
+
+        public ObservableCollection<Explorer> ClosedExplorers { get; private set; }
 
         public void Start()
         {
@@ -142,12 +148,8 @@ namespace ExplorerWindowCleaner
                 }
             }
 
-            // 更新
-            Explorers.Clear();
-            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.LastUpdateDateTime))
-            {
-                Explorers.Add(aliveExplorer);
-            }
+            // 表示更新
+            UpdateView();
 
             if (WindowCount > MaxWindowCount) MaxWindowCount = WindowCount;
             TotalCloseWindowCount += closeWindowCount;
@@ -155,12 +157,43 @@ namespace ExplorerWindowCleaner
             return closeWindowCount;
         }
 
+        private void UpdateView()
+        {
+            Explorers.Clear();
+            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x => x.LastUpdateDateTime))
+            {
+                Explorers.Add(aliveExplorer);
+            }
+
+            ClosedExplorers.Clear();
+            foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsPined).ThenByDescending(x=>x.CloseCount).ThenByDescending(x=>x.LastUpdateDateTime))
+            {
+                ClosedExplorers.Add(closedExplorer);
+            }
+        }
+
         private bool CloseExplorer(Explorer explorer)
         {
             if (explorer.IsPined) return false;
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
+            UpdateClosedDictionary(explorer);
+
             return true;
+        }
+
+        public void UpdateClosedDictionary(Explorer explorer)
+        {
+            if (_closedExplorerDic.ContainsKey(explorer.LocationKey))
+            {
+                // update
+                _closedExplorerDic[explorer.LocationKey].UpdateCloseCount();
+            }
+            else
+            {
+                // add
+                _closedExplorerDic.Add(explorer.LocationKey, explorer);
+            }
         }
 
         #region Dispose

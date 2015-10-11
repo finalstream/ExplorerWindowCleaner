@@ -31,6 +31,7 @@ namespace ExplorerWindowCleaner
         public InternetExplorer Instance { get; private set; }
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
         public bool IsPined { get; set; }
+        public int CloseCount { get; private set; }
 
         public void Update(InternetExplorer ie)
         {
@@ -50,6 +51,7 @@ namespace ExplorerWindowCleaner
         {
             try
             {
+                LastUpdateDateTime = DateTime.Now;
                 Instance.Quit();
             }
             catch (Exception) { /* 失敗したとしても何もしない */ }
@@ -71,6 +73,12 @@ namespace ExplorerWindowCleaner
         {
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void UpdateCloseCount()
+        {
+            LastUpdateDateTime = DateTime.Now;
+            CloseCount++;
         }
     }
 }

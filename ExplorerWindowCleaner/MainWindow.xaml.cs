@@ -15,6 +15,8 @@ namespace ExplorerWindowCleaner
     /// </summary>
     public partial class MainWindow : MetroWindow, INotifyPropertyChanged
     {
+        private static string ClosedWindows = "ClosedWindows";
+        private static string NowWindows = "NowWindows";
         private readonly ExplorerCleaner _ec;
 
         public MainWindow(ExplorerCleaner ec)
@@ -29,11 +31,18 @@ namespace ExplorerWindowCleaner
                 args.Cancel = true;
                 this.Visibility = Visibility.Hidden;
             };
+
+            SwitchLabel = ClosedWindows;
         }
 
-        public ObservableCollection<Explorer> Explorers
+        public ObservableCollection<Explorer> NowExplorers
         {
             get { return _ec.Explorers; }
+        }
+
+        public ObservableCollection<Explorer> ClosedExplorers
+        {
+            get { return _ec.ClosedExplorers; }
         }
 
         #region NowWindowCount変更通知プロパティ
@@ -104,6 +113,39 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
+        #region IsShowClosed変更通知プロパティ
+
+        private bool _isShowClosed;
+
+        public bool IsShowClosed
+        {
+            get { return _isShowClosed; }
+            set
+            {
+                if (_isShowClosed == value) return;
+                _isShowClosed = value;
+                OnPropertyChanged("IsShowClosed");
+            }
+        }
+
+        #endregion
+
+        #region SwitchLabel変更通知プロパティ
+
+        private string _switchLabel;
+
+        public string SwitchLabel
+        {
+            get { return _switchLabel; }
+            set
+            {
+                if (_switchLabel == value) return;
+                _switchLabel = value;
+                OnPropertyChanged("SwitchLabel");
+            }
+        }
+
+        #endregion
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
@@ -139,6 +181,32 @@ namespace ExplorerWindowCleaner
             var explorer = (Explorer)item.DataContext;
 
             explorer.SwitchPined();
+            _ec.UpdateClosedDictionary(explorer);
+        }
+
+        private void ClosedList_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            SwitchList();
+        }
+
+        private void SwitchList()
+        {
+            if (IsShowClosed)
+            {
+                SwitchLabel = ClosedWindows;
+            }
+            else
+            {
+                SwitchLabel = NowWindows;
+            }
+            IsShowClosed = !IsShowClosed;
+        }
+
+        private void ClosedDataGrid_OnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = (DataGridRow)sender;
+            var explorer = (Explorer)item.DataContext;
+            Process.Start("EXPLORER.EXE", string.Format("/n,/root,\"{0}\"", explorer.LocationPath));
         }
     }
 }

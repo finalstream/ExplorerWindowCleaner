@@ -3,24 +3,42 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:explorerWindowCleaner="clr-namespace:ExplorerWindowCleaner"
-        Title="Explorer Window Cleaner" Height="350" Width="525" Icon="icon.ico"
+        xmlns:converters="clr-namespace:ExplorerWindowCleaner.Converters"
+        Title="Explorer Window Cleaner" Height="350" Width="550" Icon="icon.ico"
         GlowBrush="{DynamicResource AccentColorBrush}"
         ShowMaxRestoreButton="False"
         ShowIconOnTitleBar="False">
     <Controls:MetroWindow.Resources>
-        <explorerWindowCleaner:IsPinedConverter x:Key="IsPinedConverter" />
+        <converters:IsPinedConverter x:Key="IsPinedConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
     </Controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#333333">
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding NowWindowCount, StringFormat= NowWindows: {0}}" Margin="5"  Padding="5,0,0,0"></TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding MaxWindowCount, StringFormat= MaxOpenWindows: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding TotalClosedWindow, StringFormat= TotalClosedWindows: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
-        </StackPanel>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False">
+        <DockPanel Grid.Row="0"  Background="#333333">
+            <TextBlock Foreground="WhiteSmoke" Text="{Binding NowWindowCount, StringFormat= Now: {0}}" Margin="5"  Padding="5,0,0,0"></TextBlock>
+            <TextBlock Foreground="WhiteSmoke" Text="{Binding MaxWindowCount, StringFormat= MaxOpen: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
+            <TextBlock Foreground="WhiteSmoke" Text="{Binding TotalClosedWindow, StringFormat= TotalClosed: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
+            <TextBlock  TextAlignment="Right" Text="{Binding SwitchLabel}" Margin="5" Padding="15,0,0,0" MouseDown="ClosedList_OnMouseDown">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="TextBlock.TextDecorations" Value="Underline" />
+                                <Setter Property="TextBlock.Foreground" Value="DarkGray" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter Property="TextBlock.Foreground" Value="WhiteSmoke" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </DockPanel>
+        <!-- NowWindows DataGrid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy LocationPath" Click="MenuItem_OnClick">
@@ -46,6 +64,38 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn  Header="LastUpdate" Binding="{Binding LastUpdate, Mode=OneWay}" Width="140"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Name" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Location" Binding="{Binding LocationPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- ClosedWindows DataGrid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding ClosedExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy LocationPath" Click="MenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MetroDataGridRow}">
+                    <EventSetter Event="PreviewMouseDoubleClick" Handler="ClosedDataGrid_OnDoubleClick" />
+                    <Setter Property="ToolTip" Value="{Binding LocationInfo, Mode=OneWay}" />
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="" Width="30" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding IsPined, Mode=OneWay, Converter={StaticResource IsPinedConverter}}" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Pin_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}">
+                            </Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn  Header="ClosedTime" Binding="{Binding LastUpdate, Mode=OneWay}" Width="140"></DataGridTextColumn>
                 <DataGridTextColumn  Header="Name" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
                 <DataGridTextColumn  Header="Location" Binding="{Binding LocationPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
             </DataGrid.Columns>
