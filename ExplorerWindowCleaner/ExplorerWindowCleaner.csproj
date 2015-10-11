@@ -67,6 +67,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppUtils.cs" />
+    <Compile Include="IsPinedConverter.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="UpdatedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -138,6 +140,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\copyclipboard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\empty.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

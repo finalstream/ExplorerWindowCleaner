@@ -124,9 +124,7 @@ namespace ExplorerWindowCleaner
                     .Where(x => x.Value.LastUpdateDateTime != duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime)).Select(x=>x.Value);
                 foreach (var closeTarget in closeTargets)
                 {
-                    var handle = closeTarget.Exit();
-                    _explorerDic.Remove(handle);
-                    closeWindowCount++;
+                    if (CloseExplorer(closeTarget)) closeWindowCount++;
                 }
             }
 
@@ -140,9 +138,7 @@ namespace ExplorerWindowCleaner
                 foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < ExporeDateTime))
                 {
                     Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
-                    var handle = expireExplorer.Exit();
-                    _explorerDic.Remove(handle);
-                    closeWindowCount++;
+                    if (CloseExplorer(expireExplorer)) closeWindowCount++;
                 }
             }
 
@@ -157,6 +153,14 @@ namespace ExplorerWindowCleaner
             TotalCloseWindowCount += closeWindowCount;
 
             return closeWindowCount;
+        }
+
+        private bool CloseExplorer(Explorer explorer)
+        {
+            if (explorer.IsPined) return false;
+            var handle = explorer.Exit();
+            _explorerDic.Remove(handle);
+            return true;
         }
 
         #region Dispose

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using ExplorerWindowCleaner.Annotations;
 using SHDocVw;
 
 namespace ExplorerWindowCleaner
 {
-    public class Explorer
+    public class Explorer : INotifyPropertyChanged
     {
 
         public Explorer(int seqNo, InternetExplorer instance)
@@ -14,6 +17,7 @@ namespace ExplorerWindowCleaner
             LocationName = instance.LocationName;
             Instance = instance;
             LastUpdateDateTime = DateTime.Now;
+            IsPined = false;
         }
 
         public int SeqNo { get; private set; }
@@ -26,6 +30,7 @@ namespace ExplorerWindowCleaner
         public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         public InternetExplorer Instance { get; private set; }
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
+        public bool IsPined { get; set; }
 
         public void Update(InternetExplorer ie)
         {
@@ -51,6 +56,21 @@ namespace ExplorerWindowCleaner
             
             Console.WriteLine("exit explorer : {0}", Handle);
             return Handle;
+        }
+
+        public void SwitchPined()
+        {
+            IsPined = !IsPined;
+            OnPropertyChanged("IsPined");
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

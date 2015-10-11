@@ -132,5 +132,13 @@ namespace ExplorerWindowCleaner
 
             SwitchToThisWindow(new IntPtr(explorer.Handle), true);
         }
+
+        private void Pin_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = (DataGridRow) ((FrameworkElement)sender).Tag;
+            var explorer = (Explorer)item.DataContext;
+
+            explorer.SwitchPined();
+        }
     }
 }

@@ -16,14 +16,10 @@ namespace ExplorerWindowCleaner
             [MarshalAs(UnmanagedType.LPTStr)] StringBuilder remoteName, 
             ref int length);
         /// <summary>
-        /// Given a path, returns the UNC path or the original. (No exceptions
-        /// are raised by this function directly). For example, "P:\2008-02-29"
-        /// might return: "\\networkserver\Shares\Photos\2008-02-09"
+        /// ネットワークドライブパスだった場合、UNC(Universal Naming Convention)パスに変換します。
         /// </summary>
-        /// <param name="originalPath">The path to convert to a UNC Path</param>
-        /// <returns>A UNC path. If a network drive letter is specified, the
-        /// drive letter is converted to a UNC or network path. If the 
-        /// originalPath cannot be converted, it is returned unchanged.</returns>
+        /// <param name="originalPath"></param>
+        /// <returns></returns>
         /// <remarks>ref http://www.wiredprairie.us/blog/index.php/archives/22 </remarks>
         public static string GetUNCPath(string originalPath)
         {
