@@ -108,15 +108,6 @@ namespace ExplorerWindowCleaner
         [DllImport("user32.dll", SetLastError = true)]
         private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 
-        private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var item = (ListViewItem)sender;
-            var explorer = (Explorer)item.DataContext;
-
-            SwitchToThisWindow(new IntPtr(explorer.Handle), true);
-            //Process.Start("EXPLORER.EXE", explorer.LocalPath);
-        }
-
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentExplorer == null) return;
@@ -133,5 +124,13 @@ namespace ExplorerWindowCleaner
             PropertyChanged(this, new PropertyChangedEventArgs(name));
         }
         #endregion
+
+        private void DataGrid_OnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = (DataGridRow)sender;
+            var explorer = (Explorer)item.DataContext;
+
+            SwitchToThisWindow(new IntPtr(explorer.Handle), true);
+        }
     }
 }

@@ -16,30 +16,26 @@
             <TextBlock Foreground="WhiteSmoke" Text="{Binding MaxWindowCount, StringFormat= MaxOpenWindows: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
             <TextBlock Foreground="WhiteSmoke" Text="{Binding TotalClosedWindow, StringFormat= TotalClosedWindows: {0}}" Margin="5" Padding="15,0,0,0"></TextBlock>
         </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}">
-            <ListView.Resources>
-
-                <ContextMenu x:Key="ItemContextMenu">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
                     <MenuItem Header="Copy LocalPath" Click="MenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
-            </ListView.Resources>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}" >
-                    <EventSetter Event="MouseDoubleClick" Handler="ListView_MouseDoubleClick"/>
-                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+            </DataGrid.ContextMenu>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MetroDataGridRow}">
+                    <EventSetter Event="PreviewMouseDoubleClick" Handler="DataGrid_OnDoubleClick" />
                 </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="LastUpdate" DisplayMemberBinding="{Binding LastUpdate}"></GridViewColumn>
-                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding LocationName}"></GridViewColumn>
-                    <GridViewColumn Header="LocalPath" DisplayMemberBinding="{Binding LocalPath}"></GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn  Header="LastUpdate" Binding="{Binding LastUpdate, Mode=OneWay}" Width="140"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Directory" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
+                <DataGridTextColumn  Header="LocalPath" Binding="{Binding LocalPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Controls:MetroWindow>
