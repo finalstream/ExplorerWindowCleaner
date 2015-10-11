@@ -41,7 +41,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ## SpecialThanks
 
 ##### UI Framework : MahApps.Metro http://mahapps.com/
-##### Icon         : David Vignoni http://www.icon-king.com/
+##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/
 
 ## TODO
 10月中旬くらいまでにやる予定。。。
