@@ -10,7 +10,7 @@ namespace ExplorerWindowCleaner
         {
             SeqNo = seqNo;
             Handle = instance.HWND;
-            Location = instance.LocationURL;
+            LocationUrl = instance.LocationURL;
             LocationName = instance.LocationName;
             Instance = instance;
             LastUpdateDateTime = DateTime.Now;
@@ -20,24 +20,25 @@ namespace ExplorerWindowCleaner
         public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
-        public string Location { get; private set; }
-        public string LocationKey {get { return !string.IsNullOrEmpty(Location) ? Location : LocationName; }}
+        public string LocationUrl { get; private set; }
+        public string LocationKey {get { return !string.IsNullOrEmpty(LocationUrl) ? LocationUrl : LocationName; }}
         public string LocationName { get; private set; }
-        public string LocalPath { get { return !string.IsNullOrEmpty(Location) ? new Uri(Location).LocalPath : LocationName; } }
+        public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? new Uri(LocationUrl).LocalPath : LocationName; } }
         public InternetExplorer Instance { get; private set; }
+        public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
 
         public void Update(InternetExplorer ie)
         {
             var locationkey = !string.IsNullOrEmpty(ie.LocationURL) ? ie.LocationURL : ie.LocationName;
             if (LocationKey == locationkey) return; // パスに変更がない場合は何もしない。
-            Location = ie.LocationURL;
+            LocationUrl = ie.LocationURL;
             LocationName = ie.LocationName;
             LastUpdateDateTime = DateTime.Now;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", LastUpdateDateTime, LocalPath);
+            return string.Format("{0} {1}", LastUpdateDateTime, LocationPath);
         }
 
         public int Exit()

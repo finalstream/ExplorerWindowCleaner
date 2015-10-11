@@ -19,7 +19,7 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding Explorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy LocalPath" Click="MenuItem_OnClick">
+                    <MenuItem Header="Copy LocationPath" Click="MenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
                         </MenuItem.Icon>
@@ -29,12 +29,13 @@
             <DataGrid.RowStyle>
                 <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MetroDataGridRow}">
                     <EventSetter Event="PreviewMouseDoubleClick" Handler="DataGrid_OnDoubleClick" />
+                    <Setter Property="ToolTip" Value="{Binding LocationInfo, Mode=OneWay}" />
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn  Header="LastUpdate" Binding="{Binding LastUpdate, Mode=OneWay}" Width="140"></DataGridTextColumn>
-                <DataGridTextColumn  Header="Directory" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
-                <DataGridTextColumn  Header="LocalPath" Binding="{Binding LocalPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Name" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Location" Binding="{Binding LocationPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

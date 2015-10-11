@@ -111,7 +111,7 @@ namespace ExplorerWindowCleaner
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentExplorer == null) return;
-            Clipboard.SetText(CurrentExplorer.LocalPath);
+            Clipboard.SetText(CurrentExplorer.LocationPath);
         }
 
         #region INotifyPropertyChanged メンバ

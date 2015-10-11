@@ -95,7 +95,7 @@ namespace ExplorerWindowCleaner
                     {
                         var explorer = new Explorer(Interlocked.Increment(ref _seqNo), ie);
                         Console.WriteLine("add explorer : {0} {1} {2} {3}", explorer.SeqNo, explorer.LocationKey,
-                            explorer.LocalPath, explorer.Instance.HWND);
+                            explorer.LocationPath, explorer.Instance.HWND);
                         _explorerDic.Add(explorer.Handle, explorer);
                     }
                     else
@@ -148,7 +148,7 @@ namespace ExplorerWindowCleaner
 
             // 更新
             Explorers.Clear();
-            foreach (var aliveExplorer in _explorerDic.Values.OrderBy(x=>x.SeqNo))
+            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.LastUpdateDateTime))
             {
                 Explorers.Add(aliveExplorer);
             }
