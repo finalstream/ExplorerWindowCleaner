@@ -13,14 +13,17 @@ Require .NET Framework 4.5
 ## 機能
 エクスプローラに関連した以下の機能があります。
 
-* 重複したパスのウインドウを自動クローズ。
+* 重複したパスのウインドウを自動クローズ。（ピン留めすると自動クローズを抑止できます）
+* ピン留めをすることでお気に入り登録。
+* お気に入りをエクスプローラで一括オープン。（すでにオープン済みのものは開きません）
 * 開いているウインドウリスト(ロケーション)を表示。（最終更新日時、ロケーションパス表示）
+* クローズドリスト（お気に入りと閉じたパスの履歴）に表示切替。
 * ロケーションがネットワークドライブの場合、UNC(Universal Naming Convention)パスに変換するためメールとかにすぐ貼り付けれます。
 * ウインドウリストでフルパスをクリップボードにコピー。
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト無効）
 * クローズしたウインドウ数を通知。(デフォルト有効)
 
-![image](https://cloud.githubusercontent.com/assets/3516444/10263309/735a5472-6a24-11e5-880a-dbacc7232786.png)
+![image](https://cloud.githubusercontent.com/assets/3516444/10421163/ca04b762-70dd-11e5-8b0f-3631e6596cd9.png)
 
 ## 設定
 ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
@@ -37,6 +40,8 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 　ウインドウをクローズしたときにバルーンで通知します。デフォルトは有効です。
 * AccentColor  
 　アクセントカラーです。"Red", "Green", "Blue", "Purple", "Orange", "Lime", "Emerald", "Teal", "Cyan", "Cobalt", "Indigo", "Violet", "Pink", "Magenta", "Crimson", "Amber", "Yellow", "Brown", "Olive", "Steel", "Mauve", "Taupe", "Sienna"から選択してください。デフォルトは"Cobalt"です。
+* ExportLimitNum  
+　エクスポートする履歴の数です。デフォルトは30です。
 
 ## SpecialThanks
 
@@ -44,15 +49,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/
 
 ## TODO
-10月中旬くらいまでにやる予定。。。
+10/12 だいたい実装した。たまに落ちるのが再現しない。。
 
-* クローズドリスト表示  
-クローズしたウインドウのパスを表示する。ウインドウと回数（ソート用）をファイルで保存しておく。こうすることでよく使うパスを表示できる気がする。
-* ソートできるようにする。  
-最終更新日時でソートできるようにする。DataGridに変更する？
 * たまに落ちる。  
 落ちないように処理する。  
-* ピン留め  
-やっぱりよく使うパスはずーっと残っていてほしい。クローズドリストにも残るようにする。
-* 最近使ったのが上にくるように  
-いまのままだと新しいのが下になるのでみにくい。
