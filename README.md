@@ -50,7 +50,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/
 
 ## TODO
-10/12 だいたい実装した。たまに落ちるのが再現しない。。
+10/12 だいたい実装した。たまに落ちるのが再現しないので修正できない。。
 
 * たまに落ちる。  
 落ちないように処理する。  
