@@ -20,7 +20,7 @@ Require .NET Framework 4.5
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト無効）
 * クローズしたウインドウ数を通知。(デフォルト有効)
 
-![image](https://cloud.githubusercontent.com/assets/3516444/10263309/735a5472-6a24-11e5-880a-dbacc7232786.png)
+![image](https://cloud.githubusercontent.com/assets/3516444/10421163/ca04b762-70dd-11e5-8b0f-3631e6596cd9.png)
 
 ## 設定
 ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
