@@ -36,7 +36,8 @@ namespace ExplorerWindowCleaner
             _explorerCleaner = new ExplorerCleaner(
                 Settings.Default.Interval,
                 Settings.Default.IsAutoCloseUnused,
-                Settings.Default.ExpireInterval);
+                Settings.Default.ExpireInterval,
+                Settings.Default.ExportLimitNum);
             notifyIcon = new NotifyIconContainer(_explorerCleaner);
         }
 

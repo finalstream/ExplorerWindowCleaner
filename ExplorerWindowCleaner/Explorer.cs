@@ -2,12 +2,23 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using ExplorerWindowCleaner.Annotations;
+using Newtonsoft.Json;
 using SHDocVw;
 
 namespace ExplorerWindowCleaner
 {
     public class Explorer : INotifyPropertyChanged
     {
+        [JsonConstructor]
+        public Explorer(DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount)
+        {
+            LastUpdateDateTime = lastUpdateDateTime;
+            Handle = handle;
+            LocationUrl = locationUrl;
+            LocationName = locationName;
+            IsPined = isPined;
+            CloseCount = closeCount;
+        }
 
         public Explorer(int seqNo, InternetExplorer instance)
         {
@@ -20,15 +31,21 @@ namespace ExplorerWindowCleaner
             IsPined = false;
         }
 
+        [JsonIgnore]
         public int SeqNo { get; private set; }
+        [JsonIgnore]
         public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
         public string LocationUrl { get; private set; }
-        public string LocationKey {get { return !string.IsNullOrEmpty(LocationUrl) ? LocationUrl : LocationName; }}
+        [JsonIgnore]
+        public string LocationKey { get { return !string.IsNullOrEmpty(LocationUrl) ? LocationUrl : LocationName; }}
         public string LocationName { get; private set; }
+        [JsonIgnore]
         public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
+        [JsonIgnore]
         public InternetExplorer Instance { get; private set; }
+        [JsonIgnore]
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
         public bool IsPined { get; set; }
         public int CloseCount { get; private set; }
@@ -51,7 +68,7 @@ namespace ExplorerWindowCleaner
         {
             try
             {
-                LastUpdateDateTime = DateTime.Now;
+                UpdateClosedInfo();
                 Instance.Quit();
             }
             catch (Exception) { /* 失敗したとしても何もしない */ }
@@ -75,10 +92,16 @@ namespace ExplorerWindowCleaner
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void UpdateCloseCount()
+        public void UpdateClosedInfo()
         {
             LastUpdateDateTime = DateTime.Now;
             CloseCount++;
+        }
+
+        public void Restore(Explorer explorer)
+        {
+            LastUpdateDateTime = explorer.LastUpdateDateTime;
+            IsPined = explorer.IsPined;
         }
     }
 }

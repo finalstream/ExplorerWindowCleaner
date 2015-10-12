@@ -67,5 +67,14 @@ namespace ExplorerWindowCleaner.Properties {
                 return ((string)(this["AccentColor"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int ExportLimitNum {
+            get {
+                return ((int)(this["ExportLimitNum"]));
+            }
+        }
     }
 }

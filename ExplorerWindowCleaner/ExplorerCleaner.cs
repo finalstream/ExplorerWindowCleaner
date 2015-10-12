@@ -7,17 +7,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using ExplorerWindowCleaner.Properties;
+using Newtonsoft.Json;
 using SHDocVw;
 
 namespace ExplorerWindowCleaner
 {
     public class ExplorerCleaner
     {
+        private static string HistoryFileName = "history.json";
         private static int _seqNo = 0;
         private readonly Dictionary<int, Explorer> _explorerDic;
-        private readonly Dictionary<string, Explorer> _closedExplorerDic; 
+        /// <summary>
+        /// 復元用エクスプローラディクショナリ（前回のNow）
+        /// </summary>
+        private Dictionary<int, Explorer> _restoreExplorerDic;
+        private Dictionary<string, Explorer> _closedExplorerDic; 
         private readonly TimeSpan _interval;
         private readonly TimeSpan _expireInterval;
+        private readonly int _exportLimitNum;
         private CancellationTokenSource _cancellationTokenSource;
         public bool IsAutoCloseUnused { get; set; }
         public int WindowCount { get { return _explorerDic.Count; } }
@@ -42,17 +49,36 @@ namespace ExplorerWindowCleaner
         #endregion
 
 
-        public ExplorerCleaner(TimeSpan interval, bool isAutoCloseUnused, TimeSpan expireInterval)
+        public ExplorerCleaner(TimeSpan interval, bool isAutoCloseUnused, TimeSpan expireInterval, int exportLimitNum)
         {
             _interval = interval;
             IsAutoCloseUnused = isAutoCloseUnused;
             _expireInterval = expireInterval;
+            _exportLimitNum = exportLimitNum;
             _explorerDic = new Dictionary<int, Explorer>();
             _closedExplorerDic = new Dictionary<string, Explorer>();
+            _restoreExplorerDic = new Dictionary<int, Explorer>();
             Explorers = new ObservableCollection<Explorer>();
             ClosedExplorers = new ObservableCollection<Explorer>();
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
             BindingOperations.EnableCollectionSynchronization(ClosedExplorers, new object());
+
+            LoadHistory();
+        }
+
+        private void LoadHistory()
+        {
+            if (!File.Exists(HistoryFileName)) return;
+            var imports = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
+
+            // ピン留めとクローズドをマージ
+            var pinedDic = imports.Where(x => x.IsPined).ToDictionary(x=>x.LocationKey, x=>x);
+            _closedExplorerDic = pinedDic.Values
+                .Concat(imports.Where(x=>x.CloseCount > 0 && !pinedDic.ContainsKey(x.LocationKey))).ToDictionary(x=>x.LocationKey, x=>x);
+
+            // 復元用ディクショナリ
+            _restoreExplorerDic = imports.Where(x => x.CloseCount == 0)
+                .ToDictionary(x => x.Handle, x => x);
         }
 
         public ObservableCollection<Explorer> Explorers { get; private set; }
@@ -100,6 +126,7 @@ namespace ExplorerWindowCleaner
                     if (!_explorerDic.Keys.Contains(ie.HWND))
                     {
                         var explorer = new Explorer(Interlocked.Increment(ref _seqNo), ie);
+                        if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
                         Console.WriteLine("add explorer : {0} {1} {2} {3}", explorer.SeqNo, explorer.LocationKey,
                             explorer.LocationPath, explorer.Instance.HWND);
                         _explorerDic.Add(explorer.Handle, explorer);
@@ -115,6 +142,7 @@ namespace ExplorerWindowCleaner
             // すでに終了されたものがあればディクショナリから削除
             foreach (var closedHandle in closedExplorerHandleList)
             {
+                CloseExplorer(_explorerDic[closedHandle]);
                 _explorerDic.Remove(closedHandle);
             }
 
@@ -151,16 +179,36 @@ namespace ExplorerWindowCleaner
             // 表示更新
             UpdateView();
 
+            SaveHistory();
+
             if (WindowCount > MaxWindowCount) MaxWindowCount = WindowCount;
             TotalCloseWindowCount += closeWindowCount;
 
             return closeWindowCount;
         }
 
+        private void SaveHistory()
+        {
+            var nowDic = _explorerDic
+                .OrderByDescending(x=>x.Value.LastUpdateDateTime)
+                .GroupBy(x=>x.Value.LocationKey)
+                .ToDictionary(g=> g.Key, g=>g.First().Value);
+            var histories = nowDic
+                .Concat(_closedExplorerDic.Where(x=> !nowDic.ContainsKey(x.Value.LocationKey))).Select(x=>x.Value);
+
+            var exports =
+                histories.OrderByDescending(x => x.IsPined)
+                    .ThenByDescending(x => x.CloseCount)
+                    .ThenByDescending(x => x.LastUpdateDateTime).Take(_exportLimitNum);
+
+            File.WriteAllText(HistoryFileName, JsonConvert.SerializeObject(exports, Formatting.Indented));
+
+        }
+
         private void UpdateView()
         {
             Explorers.Clear();
-            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x => x.LastUpdateDateTime))
+            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.IsPined).ThenByDescending(x => x.LastUpdateDateTime))
             {
                 Explorers.Add(aliveExplorer);
             }
@@ -187,7 +235,7 @@ namespace ExplorerWindowCleaner
             if (_closedExplorerDic.ContainsKey(explorer.LocationKey))
             {
                 // update
-                _closedExplorerDic[explorer.LocationKey].UpdateCloseCount();
+                _closedExplorerDic[explorer.LocationKey].UpdateClosedInfo();
             }
             else
             {
