@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -28,6 +29,7 @@ namespace ExplorerWindowCleaner
         private CancellationTokenSource _cancellationTokenSource;
         public bool IsAutoCloseUnused { get; set; }
         public int WindowCount { get { return _explorerDic.Count; } }
+        public int PinedCount { get { return _explorerDic.Values.Count(x => x.IsPined); }}
         public int MaxWindowCount { get; private set; }
         public int TotalCloseWindowCount { get; private set; }
         public DateTime ExporeDateTime { get; private set; }
@@ -193,6 +195,14 @@ namespace ExplorerWindowCleaner
                 .OrderByDescending(x=>x.Value.LastUpdateDateTime)
                 .GroupBy(x=>x.Value.LocationKey)
                 .ToDictionary(g=> g.Key, g=>g.First().Value);
+            
+            // ピンを引き継ぐ
+            foreach (var exp in nowDic.Values)
+            {
+                var e = _closedExplorerDic.Values.FirstOrDefault(x => x.LocationKey == exp.LocationKey);
+                if (e != null) exp.IsPined = exp.IsPined || e.IsPined;
+            }
+
             var histories = nowDic
                 .Concat(_closedExplorerDic.Where(x=> !nowDic.ContainsKey(x.Value.LocationKey))).Select(x=>x.Value);
 
@@ -244,6 +254,21 @@ namespace ExplorerWindowCleaner
             }
         }
 
+        public void OpenExplorer(string locationPath)
+        {
+            Process.Start("EXPLORER.EXE", string.Format("/n,/root,\"{0}\"", locationPath));
+        }
+
+        public void OpenPinedExplorer()
+        {
+            var closedPinLocationPaths = _closedExplorerDic.Values.Where(
+                x => x.IsPined && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey)).Select(x=>x.LocationKey);
+            foreach (var closedPinLocationPath in closedPinLocationPaths)
+            {
+                OpenExplorer(closedPinLocationPath);
+            }
+        }
+
         #region Dispose
 
         // Flag: Has Dispose already been called?
@@ -275,5 +300,7 @@ namespace ExplorerWindowCleaner
         }
 
         #endregion
+
+        
     }
 }

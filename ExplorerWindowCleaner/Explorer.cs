@@ -48,6 +48,7 @@ namespace ExplorerWindowCleaner
         [JsonIgnore]
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
         public bool IsPined { get; set; }
+        public bool IsFavorite { get; set; }
         public int CloseCount { get; private set; }
 
         public void Update(InternetExplorer ie)

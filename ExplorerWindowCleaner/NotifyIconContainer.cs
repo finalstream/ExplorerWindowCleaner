@@ -49,6 +49,7 @@ namespace ExplorerWindowCleaner
                 }
                 _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
                 _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
+                _mainWindow.PinedCount = _explorerCleaner.PinedCount;
                 _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
             };
 

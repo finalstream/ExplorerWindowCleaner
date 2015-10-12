@@ -79,6 +79,23 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
+        #region PinedCount変更通知プロパティ
+
+        private int _pinedCount;
+
+        public int PinedCount
+        {
+            get { return _pinedCount; }
+            set
+            {
+                if (_pinedCount == value) return;
+                _pinedCount = value;
+                OnPropertyChanged("PinedCount");
+            }
+        }
+
+        #endregion
+
         #region TotalClosedWindow変更通知プロパティ
 
         private int _totalClosedWindow;
@@ -206,7 +223,13 @@ namespace ExplorerWindowCleaner
         {
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
-            Process.Start("EXPLORER.EXE", string.Format("/n,/root,\"{0}\"", explorer.LocationPath));
+            _ec.OpenExplorer(explorer.LocationPath);
+        }
+
+
+        private void OpenPined_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _ec.OpenPinedExplorer();
         }
     }
 }
