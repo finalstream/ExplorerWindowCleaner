@@ -196,14 +196,14 @@ namespace ExplorerWindowCleaner
                 .GroupBy(x=>x.Value.LocationKey)
                 .ToDictionary(g=> g.Key, g=>g.First().Value);
             
-            // お気に入りを引き継ぐ
+            // ClosedからNowにお気に入りを引き継ぐ
             foreach (var exp in nowDic.Values)
             {
                 var e = _closedExplorerDic.Values.FirstOrDefault(x => x.LocationKey == exp.LocationKey);
                 if (e != null) exp.IsFavorited = exp.IsFavorited || e.IsFavorited;
             }
 
-            // NowとClosedをマージ
+            // NowとClosedをマージ（復元のためNowを優先）
             var histories = nowDic
                 .Concat(_closedExplorerDic.Where(x=> !nowDic.ContainsKey(x.Value.LocationKey))).Select(x=>x.Value);
 

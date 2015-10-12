@@ -2,11 +2,13 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace ExplorerWindowCleaner 
 {
@@ -239,6 +241,16 @@ namespace ExplorerWindowCleaner
             var explorer = (Explorer)item.DataContext;
 
             explorer.SwitchFavorited();
+        }
+
+        private void Version_OnClick(object sender, RoutedEventArgs e)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var exeInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+
+            this.ShowMessageAsync(
+                string.Format("{0} ver.{1}", exeInfo.ProductName, exeInfo.ProductVersion),
+                exeInfo.LegalCopyright + "\n" + "https://github.com/finalstream/ExplorerWindowCleaner");
         }
     }
 }
