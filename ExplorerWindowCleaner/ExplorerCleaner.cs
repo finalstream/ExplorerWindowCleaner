@@ -79,8 +79,8 @@ namespace ExplorerWindowCleaner
                 .Concat(imports.Where(x=>x.CloseCount > 0 && !pinedDic.ContainsKey(x.LocationKey))).ToDictionary(x=>x.LocationKey, x=>x);
 
             // 復元用ディクショナリ
-            _restoreExplorerDic = imports.Where(x => x.CloseCount == 0)
-                .ToDictionary(x => x.Handle, x => x);
+            _restoreExplorerDic = imports.Where(x => x.CloseCount == 0).GroupBy(x=>x.Handle)
+                .ToDictionary(x => x.Key, x => x.First());
         }
 
         public ObservableCollection<Explorer> Explorers { get; private set; }
