@@ -73,6 +73,7 @@
     <Compile Include="AppUtils.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\IsPinedConverter.cs" />
+    <Compile Include="Converters\IsFavoritedConverter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="UpdatedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
@@ -151,6 +152,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\favorite.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

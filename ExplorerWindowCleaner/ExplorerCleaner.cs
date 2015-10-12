@@ -73,8 +73,8 @@ namespace ExplorerWindowCleaner
             if (!File.Exists(HistoryFileName)) return;
             var imports = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
 
-            // ピン留めとクローズドをマージ
-            var pinedDic = imports.Where(x => x.IsPined).ToDictionary(x=>x.LocationKey, x=>x);
+            // お気に入りとクローズドをマージ
+            var pinedDic = imports.Where(x => x.IsFavorited).ToDictionary(x=>x.LocationKey, x=>x);
             _closedExplorerDic = pinedDic.Values
                 .Concat(imports.Where(x=>x.CloseCount > 0 && !pinedDic.ContainsKey(x.LocationKey))).ToDictionary(x=>x.LocationKey, x=>x);
 
@@ -196,18 +196,20 @@ namespace ExplorerWindowCleaner
                 .GroupBy(x=>x.Value.LocationKey)
                 .ToDictionary(g=> g.Key, g=>g.First().Value);
             
-            // ピンを引き継ぐ
+            // お気に入りを引き継ぐ
             foreach (var exp in nowDic.Values)
             {
                 var e = _closedExplorerDic.Values.FirstOrDefault(x => x.LocationKey == exp.LocationKey);
-                if (e != null) exp.IsPined = exp.IsPined || e.IsPined;
+                if (e != null) exp.IsFavorited = exp.IsFavorited || e.IsFavorited;
             }
 
+            // NowとClosedをマージ
             var histories = nowDic
                 .Concat(_closedExplorerDic.Where(x=> !nowDic.ContainsKey(x.Value.LocationKey))).Select(x=>x.Value);
 
             var exports =
                 histories.OrderByDescending(x => x.IsPined)
+                    .ThenByDescending(x => x.IsFavorited)
                     .ThenByDescending(x => x.CloseCount)
                     .ThenByDescending(x => x.LastUpdateDateTime).Take(_exportLimitNum);
 
@@ -224,7 +226,7 @@ namespace ExplorerWindowCleaner
             }
 
             ClosedExplorers.Clear();
-            foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsPined).ThenByDescending(x=>x.CloseCount).ThenByDescending(x=>x.LastUpdateDateTime))
+            foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsFavorited).ThenByDescending(x=>x.CloseCount).ThenByDescending(x=>x.LastUpdateDateTime))
             {
                 ClosedExplorers.Add(closedExplorer);
             }
@@ -245,7 +247,7 @@ namespace ExplorerWindowCleaner
             if (_closedExplorerDic.ContainsKey(explorer.LocationKey))
             {
                 // update
-                _closedExplorerDic[explorer.LocationKey].UpdateClosedInfo();
+                _closedExplorerDic[explorer.LocationKey].UpdateClosedInfo(explorer);
             }
             else
             {
@@ -262,7 +264,7 @@ namespace ExplorerWindowCleaner
         public void OpenPinedExplorer()
         {
             var closedPinLocationPaths = _closedExplorerDic.Values.Where(
-                x => x.IsPined && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey)).Select(x=>x.LocationKey);
+                x => x.IsFavorited && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey)).Select(x=>x.LocationKey);
             foreach (var closedPinLocationPath in closedPinLocationPaths)
             {
                 OpenExplorer(closedPinLocationPath);

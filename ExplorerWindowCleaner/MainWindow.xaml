@@ -10,6 +10,7 @@
         ShowIconOnTitleBar="False">
     <Controls:MetroWindow.Resources>
         <converters:IsPinedConverter x:Key="IsPinedConverter" />
+        <converters:IsFavoritedConverter x:Key="IsFavoritedConverter" />
         <converters:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
         <Style TargetType="TextBlock" x:Key="LinkText">
             <Style.Triggers>
@@ -33,7 +34,7 @@
             <TextBlock Foreground="WhiteSmoke" Text="{Binding PinedCount, StringFormat= Pined: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
             <TextBlock Foreground="WhiteSmoke" Text="{Binding MaxWindowCount, StringFormat= MaxOpen: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
             <TextBlock Foreground="WhiteSmoke" Text="{Binding TotalClosedWindow, StringFormat= TotalClosed: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
-            <TextBlock  Style="{StaticResource LinkText}" Text="OpenPined" Margin="5" Padding="15,0,0,0" MouseDown="OpenPined_OnMouseDown"></TextBlock>
+            <TextBlock  Style="{StaticResource LinkText}" Text="OpenFavorite" Margin="5" Padding="15,0,0,0" MouseDown="OpenFavorited_OnMouseDown"></TextBlock>
             <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
         </DockPanel>
         <!-- NowWindows DataGrid -->
@@ -89,7 +90,7 @@
                 <DataGridTemplateColumn Header="" Width="30" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding IsPined, Mode=OneWay, Converter={StaticResource IsPinedConverter}}" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Pin_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}">
+                            <Image Source="{Binding IsFavorited, Mode=OneWay, Converter={StaticResource IsFavoritedConverter}}" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Favorite_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}">
                             </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

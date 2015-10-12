@@ -10,15 +10,17 @@ namespace ExplorerWindowCleaner
     public class Explorer : INotifyPropertyChanged
     {
         [JsonConstructor]
-        public Explorer(DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount)
+        public Explorer(DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
         {
             LastUpdateDateTime = lastUpdateDateTime;
             Handle = handle;
             LocationUrl = locationUrl;
             LocationName = locationName;
             IsPined = isPined;
+            IsFavorited = isFavorited;
             CloseCount = closeCount;
         }
+
 
         public Explorer(int seqNo, InternetExplorer instance)
         {
@@ -48,7 +50,7 @@ namespace ExplorerWindowCleaner
         [JsonIgnore]
         public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
         public bool IsPined { get; set; }
-        public bool IsFavorite { get; set; }
+        public bool IsFavorited { get; set; }
         public int CloseCount { get; private set; }
 
         public void Update(InternetExplorer ie)
@@ -69,7 +71,7 @@ namespace ExplorerWindowCleaner
         {
             try
             {
-                UpdateClosedInfo();
+                UpdateClosedInfo(this);
                 Instance.Quit();
             }
             catch (Exception) { /* 失敗したとしても何もしない */ }
@@ -93,16 +95,23 @@ namespace ExplorerWindowCleaner
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void UpdateClosedInfo()
+        public void UpdateClosedInfo(Explorer explorer)
         {
             LastUpdateDateTime = DateTime.Now;
             CloseCount++;
+            IsFavorited = explorer.IsFavorited;
         }
 
         public void Restore(Explorer explorer)
         {
             LastUpdateDateTime = explorer.LastUpdateDateTime;
             IsPined = explorer.IsPined;
+        }
+
+        public void SwitchFavorited()
+        {
+            IsFavorited = !IsFavorited;
+            OnPropertyChanged("IsFavorited");
         }
     }
 }

@@ -198,6 +198,7 @@ namespace ExplorerWindowCleaner
             var explorer = (Explorer)item.DataContext;
 
             explorer.SwitchPined();
+            explorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
             _ec.UpdateClosedDictionary(explorer);
         }
 
@@ -227,9 +228,17 @@ namespace ExplorerWindowCleaner
         }
 
 
-        private void OpenPined_OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void OpenFavorited_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             _ec.OpenPinedExplorer();
+        }
+
+        private void Favorite_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = (DataGridRow)((FrameworkElement)sender).Tag;
+            var explorer = (Explorer)item.DataContext;
+
+            explorer.SwitchFavorited();
         }
     }
 }
