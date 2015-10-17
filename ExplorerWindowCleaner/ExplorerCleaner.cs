@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -18,6 +19,9 @@ namespace ExplorerWindowCleaner
 {
     public class ExplorerCleaner
     {
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
         private const string NowFileName = "now.json";
         private const string HistoryFileName = "history.json";
         private static int _seqNo = 0;
@@ -254,6 +258,7 @@ namespace ExplorerWindowCleaner
         private bool CloseExplorer(Explorer explorer)
         {
             if (explorer.IsPined) return false;
+            if (GetForegroundWindow() == (IntPtr) explorer.Handle) return false;
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
             UpdateClosedDictionary(explorer);
