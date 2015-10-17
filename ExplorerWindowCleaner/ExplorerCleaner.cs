@@ -24,7 +24,6 @@ namespace ExplorerWindowCleaner
 
         private const string NowFileName = "now.json";
         private const string HistoryFileName = "history.json";
-        private static int _seqNo = 0;
         private readonly Dictionary<int, Explorer> _explorerDic;
         /// <summary>
         /// 復元用エクスプローラディクショナリ（前回のNow）
@@ -46,17 +45,17 @@ namespace ExplorerWindowCleaner
         public int TotalCloseWindowCount { get; private set; }
         public DateTime ExporeDateTime { get; private set; }
 
-        #region Updatedイベント
+        #region WindowClosedイベント
 
         // Event object
-        public event EventHandler<UpdatedEventArgs> Updated;
+        public event EventHandler<WindowClosedEventArgs> WindowClosed;
 
-        protected virtual void OnUpdated(ICollection<string> closeWindowTitles)
+        protected virtual void OnWindowClosed(ICollection<string> closeWindowTitles)
         {
-            var handler = this.Updated;
+            var handler = this.WindowClosed;
             if (handler != null)
             {
-                handler(this, new UpdatedEventArgs(closeWindowTitles));
+                handler(this, new WindowClosedEventArgs(closeWindowTitles));
             }
         }
 
@@ -122,7 +121,7 @@ namespace ExplorerWindowCleaner
                     // メイン処理
                     var closeWindowCount = Clean();
 
-                    OnUpdated(closeWindowCount);
+                    OnWindowClosed(closeWindowCount);
 
                     Task.Delay(_interval).Wait();
                 }
@@ -152,9 +151,9 @@ namespace ExplorerWindowCleaner
 
                     if (!_explorerDic.Keys.Contains(ie.HWND))
                     {
-                        var explorer = new Explorer(Interlocked.Increment(ref _seqNo), ie);
+                        var explorer = new Explorer(ie);
                         if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
-                        Console.WriteLine("add explorer : {0} {1} {2} {3}", explorer.SeqNo, explorer.LocationKey,
+                        Console.WriteLine("add explorer : {0} {1} {2}", explorer.LocationKey,
                             explorer.LocationPath, explorer.Instance.HWND);
                         _explorerDic.Add(explorer.Handle, explorer);
                     }
@@ -240,7 +239,7 @@ namespace ExplorerWindowCleaner
             _lastSerializeHistory = historySerialized;
         }
 
-        private void UpdateView()
+        public void UpdateView()
         {
             Explorers.Clear();
             foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.IsPined).ThenByDescending(x => x.LastUpdateDateTime))

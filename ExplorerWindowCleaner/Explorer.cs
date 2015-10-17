@@ -22,10 +22,9 @@ namespace ExplorerWindowCleaner
             CloseCount = closeCount;
         }
 
-        public Explorer(int seqNo, InternetExplorer instance)
+        public Explorer(InternetExplorer instance)
         {
             RegistDateTime = DateTime.Now;
-            SeqNo = seqNo;
             Handle = instance.HWND;
             LocationUrl = instance.LocationURL;
             LocationName = instance.LocationName;
@@ -34,8 +33,6 @@ namespace ExplorerWindowCleaner
             IsPined = false;
         }
 
-        [JsonIgnore]
-        public int SeqNo { get; private set; }
         [JsonIgnore]
         public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
         public DateTime RegistDateTime { get; private set; }

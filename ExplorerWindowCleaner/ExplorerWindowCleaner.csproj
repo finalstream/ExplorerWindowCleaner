@@ -75,7 +75,7 @@
     <Compile Include="Converters\IsPinedConverter.cs" />
     <Compile Include="Converters\IsFavoritedConverter.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="UpdatedEventArgs.cs" />
+    <Compile Include="WindowClosedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

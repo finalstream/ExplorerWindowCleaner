@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 
 namespace ExplorerWindowCleaner
 {
-    public class UpdatedEventArgs : EventArgs
+    public class WindowClosedEventArgs : EventArgs
     {
         public ICollection<string> CloseWindowTitles { get; private set; }
 
-        public UpdatedEventArgs(ICollection<string> closeWindowTitles)
+        public WindowClosedEventArgs(ICollection<string> closeWindowTitles)
         {
             CloseWindowTitles = closeWindowTitles;
         }

@@ -34,7 +34,7 @@ namespace ExplorerWindowCleaner
             toolStripMenuItemStartup.Click += ToolStripMenuItemStartupOnClick;
             toolStripMenuItemAutoClose.Checked = Properties.Settings.Default.IsAutoCloseUnused;
 
-            _explorerCleaner.Updated += (sender, args) =>
+            _explorerCleaner.WindowClosed += (sender, args) =>
             {
                 notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.WindowCount);
                 _mainWindow.Dispatcher.Invoke(() =>
