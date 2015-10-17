@@ -10,8 +10,9 @@ namespace ExplorerWindowCleaner
     public class Explorer : INotifyPropertyChanged
     {
         [JsonConstructor]
-        public Explorer(DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
+        public Explorer(DateTime registDateTime, DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
         {
+            RegistDateTime = registDateTime;
             LastUpdateDateTime = lastUpdateDateTime;
             Handle = handle;
             LocationUrl = locationUrl;
@@ -21,9 +22,9 @@ namespace ExplorerWindowCleaner
             CloseCount = closeCount;
         }
 
-
         public Explorer(int seqNo, InternetExplorer instance)
         {
+            RegistDateTime = DateTime.Now;
             SeqNo = seqNo;
             Handle = instance.HWND;
             LocationUrl = instance.LocationURL;
@@ -37,6 +38,7 @@ namespace ExplorerWindowCleaner
         public int SeqNo { get; private set; }
         [JsonIgnore]
         public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
+        public DateTime RegistDateTime { get; private set; }
         public DateTime LastUpdateDateTime { get; private set; }
         public int Handle { get; private set; }
         public string LocationUrl { get; private set; }
@@ -104,6 +106,7 @@ namespace ExplorerWindowCleaner
 
         public void Restore(Explorer explorer)
         {
+            if (LocationKey != explorer.LocationKey) return; // キーが違っていたら何もしない
             LastUpdateDateTime = explorer.LastUpdateDateTime;
             IsPined = explorer.IsPined;
         }
@@ -112,6 +115,11 @@ namespace ExplorerWindowCleaner
         {
             IsFavorited = !IsFavorited;
             OnPropertyChanged("IsFavorited");
+        }
+
+        public void UpdateRegistDateTime()
+        {
+            RegistDateTime = DateTime.Now;
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Newtonsoft.Json;
 
 namespace ExplorerWindowCleaner 
 {
@@ -201,8 +202,9 @@ namespace ExplorerWindowCleaner
             var explorer = (Explorer)item.DataContext;
 
             explorer.SwitchPined();
-            explorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
-            _ec.UpdateClosedDictionary(explorer);
+            var cloneExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(explorer));
+            cloneExplorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
+            _ec.UpdateClosedDictionary(cloneExplorer);
         }
 
         private void ClosedList_OnMouseDown(object sender, MouseButtonEventArgs e)
