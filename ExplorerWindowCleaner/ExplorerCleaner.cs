@@ -257,8 +257,8 @@ namespace ExplorerWindowCleaner
 
         private bool CloseExplorer(Explorer explorer)
         {
-            if (explorer.IsPined) return false;
-            if (GetForegroundWindow() == (IntPtr) explorer.Handle) return false;
+            if (explorer.IsPined) return false; // ピン留めの場合閉じない。
+            if (GetForegroundWindow() == (IntPtr) explorer.Handle) return false; // アクティブな場合閉じない。
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
             UpdateClosedDictionary(explorer);
