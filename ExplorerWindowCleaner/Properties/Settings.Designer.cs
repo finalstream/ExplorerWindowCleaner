@@ -76,5 +76,14 @@ namespace ExplorerWindowCleaner.Properties {
                 return ((int)(this["ExportLimitNum"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("BaseLight")]
+        public string AppTheme {
+            get {
+                return ((string)(this["AppTheme"]));
+            }
+        }
     }
 }

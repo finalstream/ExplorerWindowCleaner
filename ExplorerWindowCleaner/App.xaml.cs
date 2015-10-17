@@ -30,7 +30,7 @@ namespace ExplorerWindowCleaner
             // now set the Green accent and dark theme
             ThemeManager.ChangeAppStyle(Application.Current,
                                         ThemeManager.GetAccent(Settings.Default.AccentColor),
-                                        ThemeManager.GetAppTheme("BaseLight"));
+                                        ThemeManager.GetAppTheme(Settings.Default.AppTheme));
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             _explorerCleaner = new ExplorerCleaner(
