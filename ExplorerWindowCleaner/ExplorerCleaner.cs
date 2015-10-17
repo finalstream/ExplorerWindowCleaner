@@ -29,7 +29,7 @@ namespace ExplorerWindowCleaner
         /// 復元用エクスプローラディクショナリ（前回のNow）
         /// </summary>
         private Dictionary<int, Explorer> _restoreExplorerDic;
-        private Dictionary<string, Explorer> _closedExplorerDic; 
+        private ConcurrentDictionary<string, Explorer> _closedExplorerDic; 
         private readonly TimeSpan _interval;
         private readonly TimeSpan _expireInterval;
         private readonly int _exportLimitNum;
@@ -69,7 +69,7 @@ namespace ExplorerWindowCleaner
             _expireInterval = expireInterval;
             _exportLimitNum = exportLimitNum;
             _explorerDic = new Dictionary<int, Explorer>();
-            _closedExplorerDic = new Dictionary<string, Explorer>();
+            _closedExplorerDic = new ConcurrentDictionary<string, Explorer>();
             _restoreExplorerDic = new Dictionary<int, Explorer>();
             Explorers = new ObservableCollection<Explorer>();
             ClosedExplorers = new ObservableCollection<Explorer>();
@@ -100,7 +100,7 @@ namespace ExplorerWindowCleaner
         {
             if (!File.Exists(HistoryFileName)) return;
             var histories = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
-            _closedExplorerDic = histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x);
+            _closedExplorerDic = new ConcurrentDictionary<string, Explorer>(histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x));
         }
 
         public ObservableCollection<Explorer> Explorers { get; private set; }
@@ -267,17 +267,18 @@ namespace ExplorerWindowCleaner
 
         public void UpdateClosedDictionary(Explorer explorer)
         {
-            if (_closedExplorerDic.ContainsKey(explorer.LocationKey))
-            {
-                // update
-                _closedExplorerDic[explorer.LocationKey].UpdateClosedInfo(explorer);
-            }
-            else
-            {
-                // add
-                explorer.UpdateRegistDateTime();
-                _closedExplorerDic.Add(explorer.LocationKey, explorer);
-            }
+            _closedExplorerDic.AddOrUpdate(explorer.LocationKey,
+                s =>
+                {
+                    explorer.UpdateRegistDateTime();
+                    return explorer;
+                },
+                (s, oldExplorer) =>
+                {
+                    oldExplorer.UpdateClosedInfo(explorer);
+                    return oldExplorer;
+                });
+
         }
 
         public void OpenExplorer(string locationPath)

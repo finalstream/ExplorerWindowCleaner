@@ -19,6 +19,9 @@ namespace ExplorerWindowCleaner
     /// </summary>
     public partial class MainWindow : MetroWindow, INotifyPropertyChanged
     {
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+
         private static string ClosedWindows = "ClosedWindows";
         private static string NowWindows = "NowWindows";
         private readonly ExplorerCleaner _ec;
@@ -168,8 +171,7 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+        
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
