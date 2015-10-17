@@ -74,9 +74,9 @@ namespace ExplorerWindowCleaner
             var imports = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
 
             // お気に入りとクローズドをマージ
-            var pinedDic = imports.Where(x => x.IsFavorited).ToDictionary(x=>x.LocationKey, x=>x);
-            _closedExplorerDic = pinedDic.Values
-                .Concat(imports.Where(x=>x.CloseCount > 0 && !pinedDic.ContainsKey(x.LocationKey))).ToDictionary(x=>x.LocationKey, x=>x);
+            var favedDic = imports.Where(x => x.IsFavorited).ToDictionary(x=>x.LocationKey, x=>x);
+            _closedExplorerDic = favedDic.Values
+                .Concat(imports.Where(x => x.CloseCount > 0 && !favedDic.ContainsKey(x.LocationKey))).ToDictionary(x => x.LocationKey, x => x);
 
             // 復元用ディクショナリ
             _restoreExplorerDic = imports.Where(x => x.CloseCount == 0).GroupBy(x=>x.Handle)
