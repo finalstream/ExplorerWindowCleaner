@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner)　[![GitHub release](https://img.shields.io/github/release/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/blob/master/LICENSE)
 
 エクスプローラで開いたウインドウが重複した場合に自動でクローズするツールです。  
-起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。
+起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。そのほかにもエクスプローラ専用ランチャー的な機能がいろいろあります。
 
 Support Windows 10 / 8 / 7  
 Require .NET Framework 4.5
@@ -22,6 +22,7 @@ Require .NET Framework 4.5
 * ウインドウリストでフルパスをクリップボードにコピー。
 * 使用頻度が低いウインドウを自動でクローズ。（デフォルト有効）
 * クローズしたウインドウ数を通知。(デフォルト有効)
+* アクセントカラーを２３種類から変更が可能。（デフォルトCobalt）
 
 ![image](https://cloud.githubusercontent.com/assets/3516444/10421163/ca04b762-70dd-11e5-8b0f-3631e6596cd9.png)
 
@@ -46,11 +47,20 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ## SpecialThanks
 
 ##### UI Framework : MahApps.Metro http://mahapps.com/
-##### Json.NET     : Newtonsoft http://www.newtonsoft.com/json
+##### Json Library : Json.NET http://www.newtonsoft.com/json
 ##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/
 
 ## TODO
-10/12 だいたい実装した。たまに落ちるのが再現しないので修正できない。。
+11月までにはなんとかしたい。
+たまに落ちるのが再現しないので修正できない。。
 
-* たまに落ちる。  
-落ちないように処理する。  
+* 変更があるときだけ書き込む（現状、監視間隔ごとにwriteしているので効率悪し）
+* favoriteの登録が重複する？
+* 下部にフルパス表示する？（同じフォルダ名を複数開くとわからなくなるので）
+* 右クリックメニューのラベル修正
+* アクティブなウインドウは閉じないようにする。（急に閉じられるとびっくりする。できるか？）
+* フォルダ開くときルートで開いているのを変更する。（コマンドのオプションを設定で変更できるようにする？）
+* 通知バルーンに閉じたフォルダのNAMEを表示する。
+* ソートのサイクルになしをいれる。
+* クローズドリストがソートされていない気がする。
+* たまに落ちる。（落ちないように処理する。）
