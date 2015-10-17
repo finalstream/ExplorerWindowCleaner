@@ -98,7 +98,7 @@ namespace ExplorerWindowCleaner
         {
             LastUpdateDateTime = DateTime.Now;
             CloseCount++;
-            IsFavorited = explorer.IsFavorited;
+            if (explorer.IsFavorited) IsFavorited = explorer.IsFavorited;
         }
 
         public void Restore(Explorer explorer)

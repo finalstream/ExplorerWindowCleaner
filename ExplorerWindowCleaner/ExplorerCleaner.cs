@@ -239,6 +239,17 @@ namespace ExplorerWindowCleaner
             _lastSerializeHistory = historySerialized;
         }
 
+        public void SaveExit()
+        {
+            // 終了時にNowWindowsをクローズドに登録して保存
+            var nows = _explorerDic.Values.ToArray();
+            foreach (var explorer in nows)
+            {
+                AddOrUpdateClosedDictionary(explorer);
+            }
+            SaveHistory();
+        }
+
         public void UpdateView()
         {
             Explorers.Clear();
@@ -260,12 +271,12 @@ namespace ExplorerWindowCleaner
             if (GetForegroundWindow() == (IntPtr) explorer.Handle) return false; // アクティブな場合閉じない。
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
-            UpdateClosedDictionary(explorer);
+            AddOrUpdateClosedDictionary(explorer);
 
             return true;
         }
 
-        public void UpdateClosedDictionary(Explorer explorer)
+        public void AddOrUpdateClosedDictionary(Explorer explorer)
         {
             _closedExplorerDic.AddOrUpdate(explorer.LocationKey,
                 s =>

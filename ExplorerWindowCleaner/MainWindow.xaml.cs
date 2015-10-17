@@ -206,7 +206,7 @@ namespace ExplorerWindowCleaner
             explorer.SwitchPined();
             var cloneExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(explorer));
             cloneExplorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
-            _ec.UpdateClosedDictionary(cloneExplorer);
+            _ec.AddOrUpdateClosedDictionary(cloneExplorer);
         }
 
         private void ClosedList_OnMouseDown(object sender, MouseButtonEventArgs e)

@@ -52,6 +52,10 @@ namespace ExplorerWindowCleaner
             notifyIcon.Dispose();
         }
 
-        
+
+        private void App_OnExit(object sender, ExitEventArgs e)
+        {
+            _explorerCleaner.SaveExit();
+        }
     }
 }
