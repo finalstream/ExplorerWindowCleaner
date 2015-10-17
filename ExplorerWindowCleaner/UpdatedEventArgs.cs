@@ -1,14 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ExplorerWindowCleaner
 {
     public class UpdatedEventArgs : EventArgs
     {
-        public int CloseWindowCount { get; private set; }
+        public ICollection<string> CloseWindowTitles { get; private set; }
 
-        public UpdatedEventArgs(int closeWindowCount)
+        public UpdatedEventArgs(ICollection<string> closeWindowTitles)
         {
-            CloseWindowCount = closeWindowCount;
+            CloseWindowTitles = closeWindowTitles;
         }
     }
 }

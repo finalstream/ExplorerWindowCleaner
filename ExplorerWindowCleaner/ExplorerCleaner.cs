@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Forms.VisualStyles;
 using ExplorerWindowCleaner.Properties;
 using Newtonsoft.Json;
@@ -46,12 +47,12 @@ namespace ExplorerWindowCleaner
         // Event object
         public event EventHandler<UpdatedEventArgs> Updated;
 
-        protected virtual void OnUpdated(int closeWindowCount)
+        protected virtual void OnUpdated(ICollection<string> closeWindowTitles)
         {
             var handler = this.Updated;
             if (handler != null)
             {
-                handler(this, new UpdatedEventArgs(closeWindowCount));
+                handler(this, new UpdatedEventArgs(closeWindowTitles));
             }
         }
 
@@ -127,9 +128,13 @@ namespace ExplorerWindowCleaner
                 TaskScheduler.Default);
         }
 
-        private int Clean()
+        /// <summary>
+        /// エクスプローラのウインドウをクリーンします。
+        /// </summary>
+        /// <returns>クローズしたウインドウの名前リスト</returns>
+        private ICollection<string> Clean()
         {
-            int closeWindowCount = 0;
+            var closeWindowTitles = new List<string>();
             ShellWindows shellWindows = new ShellWindowsClass();
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
@@ -167,16 +172,16 @@ namespace ExplorerWindowCleaner
             var duplicateExplorers = _explorerDic
                 .GroupBy(g => g.Value.LocationKey)
                 .Select(g => new {Explorer = g, Count = g.Count()})
-                .Where(x => x.Count > 1);
+                .Where(x => x.Count > 1).ToArray();
 
             // 同じパスのがあれば一番新しいもの以外は終了させる
             foreach (var duplicateExplorer in duplicateExplorers)
             {
                 var closeTargets = duplicateExplorer.Explorer
-                    .Where(x => x.Value.LastUpdateDateTime != duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime)).Select(x=>x.Value);
+                    .Where(x => x.Value.LastUpdateDateTime != duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime)).Select(x=>x.Value).ToArray();
                 foreach (var closeTarget in closeTargets)
                 {
-                    if (CloseExplorer(closeTarget)) closeWindowCount++;
+                    if (CloseExplorer(closeTarget)) closeWindowTitles.Add(closeTarget.LocationName);
                 }
             }
 
@@ -190,7 +195,7 @@ namespace ExplorerWindowCleaner
                 foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < ExporeDateTime))
                 {
                     Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
-                    if (CloseExplorer(expireExplorer)) closeWindowCount++;
+                    if (CloseExplorer(expireExplorer)) closeWindowTitles.Add(expireExplorer.LocationName);
                 }
             }
 
@@ -200,9 +205,9 @@ namespace ExplorerWindowCleaner
             Save();
 
             if (WindowCount > MaxWindowCount) MaxWindowCount = WindowCount;
-            TotalCloseWindowCount += closeWindowCount;
+            TotalCloseWindowCount += closeWindowTitles.Count;
 
-            return closeWindowCount;
+            return closeWindowTitles;
         }
 
         private void Save()
@@ -273,7 +278,7 @@ namespace ExplorerWindowCleaner
 
         public void OpenExplorer(string locationPath)
         {
-            Process.Start("EXPLORER.EXE", string.Format("/n,/root,\"{0}\"", locationPath));
+            Process.Start("EXPLORER.EXE", string.Format("/n,\"{0}\"", locationPath));
         }
 
         public void OpenPinedExplorer()

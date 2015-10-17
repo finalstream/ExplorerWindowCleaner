@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
@@ -43,9 +44,11 @@ namespace ExplorerWindowCleaner
                             _explorerCleaner.ExporeDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                         : "Auto Close Unused";
                 });
-                if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowCount > 0)
+                if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
                 {
-                    notifyIcon.ShowBalloonTip(3000, "Closed Window", string.Format("{0} Windows Closed.", args.CloseWindowCount), ToolTipIcon.Info);
+                    notifyIcon.ShowBalloonTip(3000, 
+                        string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count), 
+                        string.Format("{0}",  string.Join("\n",args.CloseWindowTitles)), ToolTipIcon.Info);
                 }
                 _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
                 _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
