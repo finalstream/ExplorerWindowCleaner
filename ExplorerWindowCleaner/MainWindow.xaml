@@ -43,7 +43,7 @@
             <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
         </DockPanel>
         <!-- NowWindows DataGrid -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy LocationPath" Click="MenuItem_OnClick">
@@ -75,7 +75,7 @@
         </DataGrid>
 
         <!-- ClosedWindows DataGrid -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding ClosedExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding ClosedExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy LocationPath" Click="MenuItem_OnClick">

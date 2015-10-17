@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
@@ -251,6 +252,19 @@ namespace ExplorerWindowCleaner
             this.ShowMessageAsync(
                 string.Format("{0} ver.{1}", exeInfo.ProductName, exeInfo.ProductVersion),
                 exeInfo.LegalCopyright + "\n" + "https://github.com/finalstream/ExplorerWindowCleaner");
+        }
+
+        private void DataGrid_OnSorting(object sender, DataGridSortingEventArgs e)
+        {
+            if (e.Column.SortDirection == ListSortDirection.Descending)
+            {
+                // 降順の次はソートを無効にする
+                e.Column.SortDirection = null;
+                e.Handled = true; // イベントを処理済みにする。（デフォルトのソート機能を実行しない）
+                // このままでは矢印アイコンが消えて降順になるだけなので、以下の処理をいれる。
+                var view = CollectionViewSource.GetDefaultView(((DataGrid)sender).ItemsSource);
+                view.SortDescriptions.Clear();
+            }
         }
     }
 }
