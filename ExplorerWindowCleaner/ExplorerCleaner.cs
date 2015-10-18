@@ -119,9 +119,9 @@ namespace ExplorerWindowCleaner
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
 
                     // メイン処理
-                    var closeWindowCount = Clean();
+                    var closeWindowTitles = Clean();
 
-                    OnWindowClosed(closeWindowCount);
+                    OnWindowClosed(closeWindowTitles);
 
                     Task.Delay(_interval).Wait();
                 }
@@ -144,12 +144,13 @@ namespace ExplorerWindowCleaner
 
             foreach (InternetExplorer ie in shellWindows)
             {
+                var handle = ie.HWND;
                 var filename = Path.GetFileNameWithoutExtension(ie.FullName).ToLower();
 
                 if (filename.Equals("explorer"))
                 {
 
-                    if (!_explorerDic.Keys.Contains(ie.HWND))
+                    if (!_explorerDic.Keys.Contains(handle))
                     {
                         var explorer = new Explorer(ie);
                         if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
@@ -159,8 +160,14 @@ namespace ExplorerWindowCleaner
                     }
                     else
                     {
-                        closedExplorerHandleList.Remove(ie.HWND);
-                        _explorerDic[ie.HWND].Update(ie);
+                        closedExplorerHandleList.Remove(handle);
+
+                        // よくわからないけどここでKeyNotFoundが出る場合があるのでTryGetする。
+                        Explorer explorer;
+                        if (_explorerDic.TryGetValue(handle, out explorer))
+                        {
+                            explorer.Update(ie);
+                        }
                     }
                 }
             }
@@ -175,7 +182,7 @@ namespace ExplorerWindowCleaner
             var duplicateExplorers = _explorerDic
                 .GroupBy(g => g.Value.LocationKey)
                 .Select(g => new {Explorer = g, Count = g.Count()})
-                .Where(x => x.Count > 1).ToArray();
+                .Where(x => x.Count > 1).ToArray();　// Count > 1はいらないけど、旧バージョンからの互換のためにしばらく残す
 
             // 同じパスのがあれば一番新しいもの以外は終了させる
             foreach (var duplicateExplorer in duplicateExplorers)
