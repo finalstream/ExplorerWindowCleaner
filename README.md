@@ -24,7 +24,7 @@ Require .NET Framework 4.5
 * クローズしたウインドウ数を通知。(デフォルト有効)
 * アクセントカラーを２３種類から変更が可能。（デフォルトCobalt）
 
-![image](https://cloud.githubusercontent.com/assets/3516444/10421163/ca04b762-70dd-11e5-8b0f-3631e6596cd9.png)
+![image](https://cloud.githubusercontent.com/assets/3516444/10563872/78302602-75d7-11e5-8eed-6d4cd8072ae2.png)
 
 ## 設定
 ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
@@ -51,8 +51,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/
 
 ## TODO
-11月までにはなんとかしたい。
-たまに落ちるのが再現しないので修正できない。。
+10/18 すべて実装しました。
 
 * ~~変更があるときだけ書き込む（現状、監視間隔ごとにwriteしているので効率悪し）~~
 * ~~favoriteの登録が重複する？~~
