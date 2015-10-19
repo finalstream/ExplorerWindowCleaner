@@ -10,6 +10,9 @@ Require .NET Framework 4.5
 
 ### [Download](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)
 
+### [Download2](https://ci.appveyor.com/api/buildjobs/35y79hs46vtgdh75/artifacts/ExplorerWindowCleaner/bin/ExplorerWindowCleaner.zip)
+なんかよくわからないけどAppVeyorからの自動リリースがエラーになるのでしばらくは↑からダウンロードください。
+
 ## 機能
 エクスプローラに関連した以下の機能があります。
 
