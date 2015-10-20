@@ -13,12 +13,15 @@ using System.Windows.Documents;
 using System.Windows.Forms.VisualStyles;
 using ExplorerWindowCleaner.Properties;
 using Newtonsoft.Json;
+using NLog;
 using SHDocVw;
 
 namespace ExplorerWindowCleaner
 {
     public class ExplorerCleaner
     {
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+
         [DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();
 
@@ -34,9 +37,11 @@ namespace ExplorerWindowCleaner
         private readonly TimeSpan _expireInterval;
         private readonly int _exportLimitNum;
         private CancellationTokenSource _cancellationTokenSource;
+        private ShellWindows _shellWindows;
 
         private string _lastSerializeNow;
         private string _lastSerializeHistory;
+
         
         public bool IsAutoCloseUnused { get; set; }
         public int WindowCount { get { return _explorerDic.Count; } }
@@ -75,6 +80,7 @@ namespace ExplorerWindowCleaner
             ClosedExplorers = new ObservableCollection<Explorer>();
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
             BindingOperations.EnableCollectionSynchronization(ClosedExplorers, new object());
+            _shellWindows = new ShellWindowsClass();
 
             Restore();
             
@@ -118,10 +124,16 @@ namespace ExplorerWindowCleaner
                 {
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
 
-                    // メイン処理
-                    var closeWindowTitles = Clean();
-
-                    OnWindowClosed(closeWindowTitles);
+                    try
+                    {
+                        // メイン処理
+                        var closeWindowTitles = Clean();
+                        OnWindowClosed(closeWindowTitles);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error(ex);
+                    }
 
                     Task.Delay(_interval).Wait();
                 }
@@ -138,11 +150,10 @@ namespace ExplorerWindowCleaner
         private ICollection<string> Clean()
         {
             var closeWindowTitles = new List<string>();
-            ShellWindows shellWindows = new ShellWindowsClass();
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
 
-            foreach (InternetExplorer ie in shellWindows)
+            foreach (InternetExplorer ie in _shellWindows)
             {
                 var handle = ie.HWND;
                 var filename = Path.GetFileNameWithoutExtension(ie.FullName).ToLower();
