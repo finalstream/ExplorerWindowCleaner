@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner)　[![GitHub release](https://img.shields.io/github/release/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/blob/master/LICENSE)
 
-エクスプローラで開いたウインドウが重複した場合に自動でクローズするツールです。  
+エクスプローラで開いたウインドウが重複した場合に自動でクローズしたりするツールです。  
 起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。そのほかにもエクスプローラ専用ランチャー的な機能がいろいろあります。
 サクッと作りたかったのでMVVMでは作っていません。
 
@@ -10,6 +10,12 @@ Support Windows 10 / 8 / 7
 Require .NET Framework 4.5
 
 ### [Download](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)
+
+## 作った経緯
+僕はエクスプローラを開きすぎる癖があります。  
+というのもウインドウリストを表示して探すというのが嫌い（そっちのほうが時間がかかるので）で１回使ったウインドウは２度と使わないことが多いです。  
+そのため、エクスプローラのウインドウリストがスクロールするくらい開くことになります。  
+メモリ不足でエクスプローラが開けなくなったときに古いの消していくのですが、前々からこれを自動化したいと思っていました。  
 
 ## 機能
 エクスプローラに関連した以下の機能があります。
