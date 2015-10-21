@@ -36,24 +36,27 @@ namespace ExplorerWindowCleaner
 
             _explorerCleaner.WindowClosed += (sender, args) =>
             {
-                notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.WindowCount);
+                
                 _mainWindow.Dispatcher.Invoke(() =>
                 {
+                    notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.WindowCount);
                     toolStripMenuItemAutoClose.Text = _explorerCleaner.IsAutoCloseUnused
                         ? string.Format("Auto Close Unused expire:{0}",
                             _explorerCleaner.ExporeDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                         : "Auto Close Unused";
+                    if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
+                    {
+                        notifyIcon.ShowBalloonTip(3000,
+                            string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),
+                            string.Format("{0}", string.Join("\n", args.CloseWindowTitles)), ToolTipIcon.Info);
+                    }
+                    _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
+                    _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
+                    _mainWindow.PinedCount = _explorerCleaner.PinedCount;
+                    _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
                 });
-                if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
-                {
-                    notifyIcon.ShowBalloonTip(3000, 
-                        string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count), 
-                        string.Format("{0}",  string.Join("\n",args.CloseWindowTitles)), ToolTipIcon.Info);
-                }
-                _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
-                _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
-                _mainWindow.PinedCount = _explorerCleaner.PinedCount;
-                _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
+                
+               
             };
 
             _explorerCleaner.Start();

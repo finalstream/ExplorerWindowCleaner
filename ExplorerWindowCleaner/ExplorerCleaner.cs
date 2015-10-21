@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms.VisualStyles;
@@ -153,14 +154,19 @@ namespace ExplorerWindowCleaner
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
 
+            _log.Debug("ShellWindows[{0}]", _shellWindows.Count);
+            
             foreach (InternetExplorer ie in _shellWindows)
             {
-                var handle = ie.HWND;
-                var filename = Path.GetFileNameWithoutExtension(ie.FullName).ToLower();
 
-                if (filename.Equals("explorer"))
+                var iename = Path.GetFileNameWithoutExtension(ie.FullName);
+                if (iename == null) continue;
+                var loweriename = iename.ToLower();
+
+                if (loweriename.Equals("explorer"))
                 {
-
+                    var handle = ie.HWND;
+                    if (handle == 0) continue;
                     if (!_explorerDic.Keys.Contains(handle))
                     {
                         var explorer = new Explorer(ie);
@@ -186,8 +192,13 @@ namespace ExplorerWindowCleaner
             // すでに終了されたものがあればディクショナリから削除
             foreach (var closedHandle in closedExplorerHandleList)
             {
-                CloseExplorer(_explorerDic[closedHandle]);
-                _explorerDic.Remove(closedHandle);
+                Explorer explorer;
+                if (_explorerDic.TryGetValue(closedHandle, out explorer))
+                {
+                    CloseExplorer(explorer);
+                    _explorerDic.Remove(closedHandle);
+                }
+                
             }
 
             var duplicateExplorers = _explorerDic

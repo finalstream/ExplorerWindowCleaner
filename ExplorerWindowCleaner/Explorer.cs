@@ -3,12 +3,15 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using ExplorerWindowCleaner.Annotations;
 using Newtonsoft.Json;
+using NLog;
 using SHDocVw;
 
 namespace ExplorerWindowCleaner
 {
     public class Explorer : INotifyPropertyChanged
     {
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+
         [JsonConstructor]
         public Explorer(DateTime registDateTime, DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
         {
@@ -63,7 +66,7 @@ namespace ExplorerWindowCleaner
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", LastUpdateDateTime, LocationPath);
+            return string.Format("{0}-{1}-{2}", LocationKey, LocationName, LastUpdateDateTime);
         }
 
         public int Exit()
@@ -75,7 +78,7 @@ namespace ExplorerWindowCleaner
             }
             catch (Exception) { /* 失敗したとしても何もしない */ }
             
-            Console.WriteLine("exit explorer : {0}", Handle);
+            _log.Debug("exit explorer : {0}", this);
             return Handle;
         }
 
