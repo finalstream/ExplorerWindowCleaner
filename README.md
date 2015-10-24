@@ -55,7 +55,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 
 ##### UI Framework : MahApps.Metro http://mahapps.com/
 ##### Json Library : Json.NET http://www.newtonsoft.com/json
-##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/ , Momentum http://www.momentumdesignlab.com/ (CC BY-SA 3.0 US) , Yusuke Kamiyamane http://p.yusukekamiyamane.com/ (CC BY 3.0)
+##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/ , Momentum http://www.momentumdesignlab.com/ (CC BY-SA 3.0 US) , Yusuke Kamiyamane http://p.yusukekamiyamane.com/ (CC BY 3.0) , Material Design Icons https://materialdesignicons.com/
 
 ## TODO
 10/18 すべて実装しました。
