@@ -37,7 +37,8 @@ namespace ExplorerWindowCleaner
                 Settings.Default.Interval,
                 Settings.Default.IsAutoCloseUnused,
                 Settings.Default.ExpireInterval,
-                Settings.Default.ExportLimitNum);
+                Settings.Default.ExportLimitNum,
+                Settings.Default.IsKeepPin);
             notifyIcon = new NotifyIconContainer(_explorerCleaner);
         }
 

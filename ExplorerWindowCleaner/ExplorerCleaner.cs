@@ -33,10 +33,12 @@ namespace ExplorerWindowCleaner
         /// 復元用エクスプローラディクショナリ（前回のNow）
         /// </summary>
         private Dictionary<int, Explorer> _restoreExplorerDic;
-        private ConcurrentDictionary<string, Explorer> _closedExplorerDic; 
+        private ConcurrentDictionary<string, Explorer> _closedExplorerDic;
+        private HashSet<string> _pinedRestoreHashSet; 
         private readonly TimeSpan _interval;
         private readonly TimeSpan _expireInterval;
         private readonly int _exportLimitNum;
+        private readonly bool _isKeepPin;
         private CancellationTokenSource _cancellationTokenSource;
         private ShellWindows _shellWindows;
 
@@ -68,15 +70,17 @@ namespace ExplorerWindowCleaner
         #endregion
 
 
-        public ExplorerCleaner(TimeSpan interval, bool isAutoCloseUnused, TimeSpan expireInterval, int exportLimitNum)
+        public ExplorerCleaner(TimeSpan interval, bool isAutoCloseUnused, TimeSpan expireInterval, int exportLimitNum, bool isKeepPin)
         {
             _interval = interval;
             IsAutoCloseUnused = isAutoCloseUnused;
             _expireInterval = expireInterval;
             _exportLimitNum = exportLimitNum;
+            _isKeepPin = isKeepPin;
             _explorerDic = new Dictionary<int, Explorer>();
             _closedExplorerDic = new ConcurrentDictionary<string, Explorer>();
             _restoreExplorerDic = new Dictionary<int, Explorer>();
+            _pinedRestoreHashSet = new HashSet<string>();
             Explorers = new ObservableCollection<Explorer>();
             ClosedExplorers = new ObservableCollection<Explorer>();
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
@@ -170,10 +174,26 @@ namespace ExplorerWindowCleaner
                     if (!_explorerDic.Keys.Contains(handle))
                     {
                         var explorer = new Explorer(ie);
-                        if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
-                        Console.WriteLine("add explorer : {0} {1} {2}", explorer.LocationKey,
-                            explorer.LocationPath, explorer.Instance.HWND);
-                        _explorerDic.Add(explorer.Handle, explorer);
+                        if (_isKeepPin)
+                        {
+                            explorer.PinLocationChanged += (sender, pinexp) =>
+                            {
+                                // ピン留めでパスが変わったらピン留めのパスを開く（キープ）
+                                AppUtils.OpenExplorer(pinexp.LocationPath, true);
+                                // ピンキープのためにキーを保存
+                                _pinedRestoreHashSet.Add(pinexp.LocationKey);
+                            };
+
+                            // ピン復元
+                            if (_pinedRestoreHashSet.Contains(explorer.LocationKey))
+                            {
+                                explorer.IsPined = true;
+                                _pinedRestoreHashSet.Remove(explorer.LocationKey);
+                            }
+                        }
+
+                        RegistExplorer(explorer);
+                        
                     }
                     else
                     {
@@ -183,7 +203,14 @@ namespace ExplorerWindowCleaner
                         Explorer explorer;
                         if (_explorerDic.TryGetValue(handle, out explorer))
                         {
-                            explorer.Update(ie);
+                            if (_isKeepPin)
+                            {
+                                explorer.UpdateWithKeepPin(ie);
+                            }
+                            else
+                            {
+                                explorer.Update(ie);
+                            }
                         }
                     }
                 }
@@ -240,6 +267,13 @@ namespace ExplorerWindowCleaner
             TotalCloseWindowCount += closeWindowTitles.Count;
 
             return closeWindowTitles;
+        }
+
+        private void RegistExplorer(Explorer explorer)
+        {
+            if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
+            _log.Debug("Regist Explorer : {0}", explorer);
+            _explorerDic.Add(explorer.Handle, explorer);
         }
 
         private void Save()
@@ -321,10 +355,7 @@ namespace ExplorerWindowCleaner
 
         }
 
-        public void OpenExplorer(string locationPath)
-        {
-            Process.Start("EXPLORER.EXE", string.Format("/n,\"{0}\"", locationPath));
-        }
+        
 
         public void OpenPinedExplorer()
         {
@@ -332,7 +363,7 @@ namespace ExplorerWindowCleaner
                 x => x.IsFavorited && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey)).Select(x=>x.LocationKey);
             foreach (var closedPinLocationPath in closedPinLocationPaths)
             {
-                OpenExplorer(closedPinLocationPath);
+                AppUtils.OpenExplorer(closedPinLocationPath);
             }
         }
 

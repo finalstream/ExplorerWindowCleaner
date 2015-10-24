@@ -12,6 +12,22 @@ namespace ExplorerWindowCleaner
     {
         private readonly Logger _log = LogManager.GetCurrentClassLogger();
 
+        #region PinLocationChangedイベント
+
+        // Event object
+        public event EventHandler<Explorer> PinLocationChanged;
+
+        protected virtual void OnPinLocationChanged(Explorer pinExplorer)
+        {
+            var handler = this.PinLocationChanged;
+            if (handler != null)
+            {
+                handler(this, pinExplorer);
+            }
+        }
+
+        #endregion
+
         [JsonConstructor]
         public Explorer(DateTime registDateTime, DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
         {
@@ -57,11 +73,38 @@ namespace ExplorerWindowCleaner
 
         public void Update(InternetExplorer ie)
         {
-            var locationkey = !string.IsNullOrEmpty(ie.LocationURL) ? ie.LocationURL : ie.LocationName;
-            if (LocationKey == locationkey) return; // パスに変更がない場合は何もしない。
+            var newlocationkey = GetLocationKey(ie);
+            if (LocationKey == newlocationkey) return; // パスに変更がない場合は何もしない。
             LocationUrl = ie.LocationURL;
             LocationName = ie.LocationName;
             LastUpdateDateTime = DateTime.Now;
+        }
+
+        public void UpdateWithKeepPin(InternetExplorer ie)
+        {
+            Explorer pinExplorer = null;
+            var newlocationkey = GetLocationKey(ie);
+            if (LocationKey == newlocationkey) return; // パスに変更がない場合は何もしない。
+            
+            if (this.IsPined) pinExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(this));
+
+            Handle = ie.HWND;
+            Instance = ie;
+            LocationUrl = ie.LocationURL;
+            LocationName = ie.LocationName;
+            LastUpdateDateTime = DateTime.Now;
+
+            if (pinExplorer != null)
+            {
+                IsPined = false;
+                OnPinLocationChanged(pinExplorer);
+            }
+            
+        }
+
+        private string GetLocationKey(InternetExplorer ie)
+        {
+            return !string.IsNullOrEmpty(ie.LocationURL) ? ie.LocationURL : ie.LocationName;
         }
 
         public override string ToString()

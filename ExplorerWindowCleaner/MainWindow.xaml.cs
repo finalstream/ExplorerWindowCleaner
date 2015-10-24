@@ -231,7 +231,7 @@ namespace ExplorerWindowCleaner
         {
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
-            _ec.OpenExplorer(explorer.LocationPath);
+            AppUtils.OpenExplorer(explorer.LocationPath);
         }
 
 
