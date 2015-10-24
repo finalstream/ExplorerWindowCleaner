@@ -288,5 +288,13 @@ namespace ExplorerWindowCleaner
         {
             _ec.OpenExplorer("shell:MyComputerFolder");
         }
+
+        private void Close_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = (DataGridRow)((FrameworkElement)sender).Tag;
+            var explorer = (Explorer)item.DataContext;
+
+            _ec.CloseExplorer(explorer);
+        }
     }
 }

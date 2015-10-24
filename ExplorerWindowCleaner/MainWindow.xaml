@@ -98,6 +98,14 @@
                 <DataGridTextColumn  Header="LastUpdate" Binding="{Binding LastUpdate, Mode=OneWay}" Width="140"></DataGridTextColumn>
                 <DataGridTextColumn  Header="Name" Binding="{Binding LocationName, Mode=OneWay}" Width="*"></DataGridTextColumn>
                 <DataGridTextColumn  Header="Location" Binding="{Binding LocationPath, Mode=OneWay}" Width="2*"></DataGridTextColumn>
+                <DataGridTemplateColumn Header="" Width="30" CanUserSort="False">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                            <Image Source="Resources/close.png" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Close_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}">
+                        </Image>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 

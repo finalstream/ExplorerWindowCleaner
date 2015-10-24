@@ -116,6 +116,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\close.png" />
     <Resource Include="Resources\open.png" />
     <EmbeddedResource Include="NotifyIconContainer.resx">
       <DependentUpon>NotifyIconContainer.cs</DependentUpon>
