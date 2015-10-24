@@ -10,7 +10,24 @@
         ShowIconOnTitleBar="False">
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
-            <Button Content="version" Click="Version_OnClick" />
+            <Button Content="New Window" Click="NewWindow_OnClick" />
+            <Button Click="Version_OnClick">
+                <Rectangle Width="16" Height="16"
+                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill">
+                            <VisualBrush.Visual>
+                                <Viewbox Width="48" Height="48">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="Black" />
+                                    </Canvas>
+                                </Viewbox>
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            
         </Controls:WindowCommands>
      </Controls:MetroWindow.RightWindowCommands>
      <Controls:MetroWindow.Resources>
@@ -47,6 +64,11 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Add Favorite" Click="AddFavoriteMenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/favorite.png" Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="Open Location" Click="OpenLocationMenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Resources/open.png" Stretch="Uniform"/>

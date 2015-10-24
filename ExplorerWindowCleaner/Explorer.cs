@@ -65,9 +65,10 @@ namespace ExplorerWindowCleaner
         public string LocationPath { get { return !IsSpecialFolder ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         [JsonIgnore]
         public InternetExplorer Instance { get; private set; }
-        [JsonIgnore]
+        
         public bool IsPined { get; set; }
         public bool IsFavorited { get; set; }
+        [JsonIgnore]
         public bool IsSpecialFolder { get { return string.IsNullOrEmpty(LocationUrl); } }
         public int CloseCount { get; private set; }
 
@@ -163,6 +164,7 @@ namespace ExplorerWindowCleaner
         public void UpdateRegistDateTime()
         {
             RegistDateTime = DateTime.Now;
+            LastUpdateDateTime = DateTime.Now;
         }
     }
 }

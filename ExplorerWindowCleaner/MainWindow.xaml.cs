@@ -275,5 +275,18 @@ namespace ExplorerWindowCleaner
             if (CurrentExplorer == null) return;
             _ec.OpenExplorer(CurrentExplorer);
         }
+
+        private void AddFavoriteMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentExplorer == null) return;
+            var cloneExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(CurrentExplorer));
+            cloneExplorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
+            _ec.AddOrUpdateClosedDictionary(cloneExplorer);
+        }
+
+        private void NewWindow_OnClick(object sender, RoutedEventArgs e)
+        {
+            _ec.OpenExplorer("shell:MyComputerFolder");
+        }
     }
 }

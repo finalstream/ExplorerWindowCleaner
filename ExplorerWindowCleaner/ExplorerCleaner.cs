@@ -356,9 +356,14 @@ namespace ExplorerWindowCleaner
         public void OpenExplorer(Explorer explorer, bool isMinimized = false)
         {
             var path = !explorer.IsSpecialFolder? explorer.LocationPath : _specialFolderManager.ConvertSpecialFolder(explorer.LocationName);
+            OpenExplorer(path, isMinimized);
+        }
+
+        public void OpenExplorer(string path, bool isMinimized = false)
+        {
             var psi = new ProcessStartInfo("EXPLORER.EXE", string.Format("/n,\"{0}\"", path));
             if (isMinimized) psi.WindowStyle = ProcessWindowStyle.Minimized;
-            _log.Debug("{0} {1} {2}", (object) psi.FileName, (object) psi.Arguments, (object) psi.WindowStyle);
+            _log.Debug("{0} {1} {2}", (object)psi.FileName, (object)psi.Arguments, (object)psi.WindowStyle);
             Process.Start(psi);
         }
 
