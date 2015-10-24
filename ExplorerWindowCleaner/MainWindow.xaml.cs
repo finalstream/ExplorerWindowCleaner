@@ -171,14 +171,6 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        
-
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (CurrentExplorer == null) return;
-            Clipboard.SetText(CurrentExplorer.LocationPath);
-        }
-
         #region INotifyPropertyChanged メンバ
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -231,13 +223,13 @@ namespace ExplorerWindowCleaner
         {
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
-            AppUtils.OpenExplorer(explorer.LocationPath);
+            _ec.OpenExplorer(explorer);
         }
 
 
         private void OpenFavorited_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            _ec.OpenPinedExplorer();
+            _ec.OpenFavoritedExplorer();
         }
 
         private void Favorite_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -269,6 +261,19 @@ namespace ExplorerWindowCleaner
                 var view = CollectionViewSource.GetDefaultView(((DataGrid)sender).ItemsSource);
                 view.SortDescriptions.Clear();
             }
+        }
+
+        private void CopyLocationMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentExplorer == null) return;
+            Clipboard.SetText(CurrentExplorer.LocationPath);
+        }
+
+
+        private void OpenLocationMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentExplorer == null) return;
+            _ec.OpenExplorer(CurrentExplorer);
         }
     }
 }

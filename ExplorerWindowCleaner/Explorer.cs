@@ -59,16 +59,16 @@ namespace ExplorerWindowCleaner
         public int Handle { get; private set; }
         public string LocationUrl { get; private set; }
         [JsonIgnore]
-        public string LocationKey { get { return !string.IsNullOrEmpty(LocationUrl) ? LocationUrl : LocationName; }}
+        public string LocationKey { get { return !IsSpecialFolder ? LocationUrl : LocationName; } }
         public string LocationName { get; private set; }
         [JsonIgnore]
-        public string LocationPath { get { return !string.IsNullOrEmpty(LocationUrl) ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
+        public string LocationPath { get { return !IsSpecialFolder ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         [JsonIgnore]
         public InternetExplorer Instance { get; private set; }
         [JsonIgnore]
-        public string LocationInfo { get { return string.Format("{0} - {1}", LocationName, LocationPath); }}
         public bool IsPined { get; set; }
         public bool IsFavorited { get; set; }
+        public bool IsSpecialFolder { get { return string.IsNullOrEmpty(LocationUrl); } }
         public int CloseCount { get; private set; }
 
         public void Update(InternetExplorer ie)
@@ -121,7 +121,7 @@ namespace ExplorerWindowCleaner
             }
             catch (Exception) { /* 失敗したとしても何もしない */ }
             
-            _log.Debug("exit explorer : {0}", this);
+            _log.Debug("Exit Explorer : {0}", this);
             return Handle;
         }
 

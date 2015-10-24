@@ -47,7 +47,12 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy Location" Click="MenuItem_OnClick">
+                    <MenuItem Header="Open Location" Click="OpenLocationMenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/open.png" Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Copy Location" Click="CopyLocationMenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
                         </MenuItem.Icon>
@@ -78,7 +83,7 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding ClosedExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy Location" Click="MenuItem_OnClick">
+                    <MenuItem Header="Copy Location" Click="CopyLocationMenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
                         </MenuItem.Icon>

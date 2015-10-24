@@ -8,11 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.VisualStyles;
-using ExplorerWindowCleaner.Properties;
 using Newtonsoft.Json;
 using NLog;
 using SHDocVw;
@@ -41,6 +37,7 @@ namespace ExplorerWindowCleaner
         private readonly bool _isKeepPin;
         private CancellationTokenSource _cancellationTokenSource;
         private ShellWindows _shellWindows;
+        private SpecialFolderManager _specialFolderManager;
 
         private string _lastSerializeNow;
         private string _lastSerializeHistory;
@@ -86,7 +83,8 @@ namespace ExplorerWindowCleaner
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
             BindingOperations.EnableCollectionSynchronization(ClosedExplorers, new object());
             _shellWindows = new ShellWindowsClass();
-
+            
+            _specialFolderManager = new SpecialFolderManager();
             Restore();
             
         }
@@ -179,7 +177,7 @@ namespace ExplorerWindowCleaner
                             explorer.PinLocationChanged += (sender, pinexp) =>
                             {
                                 // ピン留めでパスが変わったらピン留めのパスを開く（キープ）
-                                AppUtils.OpenExplorer(pinexp.LocationPath, true);
+                                OpenExplorer(pinexp, true);
                                 // ピンキープのためにキーを保存
                                 _pinedRestoreHashSet.Add(pinexp.LocationKey);
                             };
@@ -248,12 +246,12 @@ namespace ExplorerWindowCleaner
             if (IsAutoCloseUnused && _expireInterval != TimeSpan.Zero)
             {
                 ExporeDateTime = DateTime.Now.Subtract(_expireInterval);
-                Console.WriteLine("expire datetime {0}", ExporeDateTime);
+                _log.Debug("Expire Datetime {0}", ExporeDateTime);
 
                 var explorers = _explorerDic.Values.ToArray();
                 foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < ExporeDateTime))
                 {
-                    Console.WriteLine("expire explorer {0}", expireExplorer.Handle);
+                    _log.Debug("Expire Explorer {0}", expireExplorer);
                     if (CloseExplorer(expireExplorer)) closeWindowTitles.Add(expireExplorer.LocationName);
                 }
             }
@@ -355,15 +353,22 @@ namespace ExplorerWindowCleaner
 
         }
 
-        
-
-        public void OpenPinedExplorer()
+        public void OpenExplorer(Explorer explorer, bool isMinimized = false)
         {
-            var closedPinLocationPaths = _closedExplorerDic.Values.Where(
-                x => x.IsFavorited && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey)).Select(x=>x.LocationKey);
-            foreach (var closedPinLocationPath in closedPinLocationPaths)
+            var path = !explorer.IsSpecialFolder? explorer.LocationPath : _specialFolderManager.ConvertSpecialFolder(explorer.LocationName);
+            var psi = new ProcessStartInfo("EXPLORER.EXE", string.Format("/n,\"{0}\"", path));
+            if (isMinimized) psi.WindowStyle = ProcessWindowStyle.Minimized;
+            _log.Debug("{0} {1} {2}", (object) psi.FileName, (object) psi.Arguments, (object) psi.WindowStyle);
+            Process.Start(psi);
+        }
+
+        public void OpenFavoritedExplorer()
+        {
+            var noaliveFavoriteExplorers = _closedExplorerDic.Values.Where(
+                x => x.IsFavorited && _explorerDic.Values.All(y => y.LocationKey != x.LocationKey));
+            foreach (var noaliveFavoriteExplorer in noaliveFavoriteExplorers)
             {
-                AppUtils.OpenExplorer(closedPinLocationPath);
+                OpenExplorer(noaliveFavoriteExplorer);
             }
         }
 
@@ -371,6 +376,7 @@ namespace ExplorerWindowCleaner
 
         // Flag: Has Dispose already been called?
         private bool disposed;
+        
 
         // Public implementation of Dispose pattern callable by consumers.
         public void Dispose()

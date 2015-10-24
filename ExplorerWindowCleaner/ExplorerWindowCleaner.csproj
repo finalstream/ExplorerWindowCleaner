@@ -79,6 +79,7 @@
     <Compile Include="Converters\IsPinedConverter.cs" />
     <Compile Include="Converters\IsFavoritedConverter.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="SpecialFolderManager.cs" />
     <Compile Include="WindowClosedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -115,6 +116,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\open.png" />
     <EmbeddedResource Include="NotifyIconContainer.resx">
       <DependentUpon>NotifyIconContainer.cs</DependentUpon>
     </EmbeddedResource>

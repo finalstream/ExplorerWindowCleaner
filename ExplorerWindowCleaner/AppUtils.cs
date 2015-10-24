@@ -51,11 +51,6 @@ namespace ExplorerWindowCleaner
             return originalPath;
         }
 
-        public static void OpenExplorer(string path, bool isMinimized = false)
-        {
-            var psi = new ProcessStartInfo("EXPLORER.EXE", string.Format("/n,\"{0}\"", path));
-            if (isMinimized) psi.WindowStyle = ProcessWindowStyle.Minimized;
-            Process.Start(psi);
-        }
+        
     }
 }
