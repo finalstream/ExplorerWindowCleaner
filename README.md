@@ -31,7 +31,7 @@ Require .NET Framework 4.5
 * クローズしたウインドウ数を通知。(デフォルト有効)
 * アクセントカラーを２３種類から変更が可能。（デフォルトCobalt）
 
-![image](https://cloud.githubusercontent.com/assets/3516444/10563872/78302602-75d7-11e5-8eed-6d4cd8072ae2.png)
+![image](https://cloud.githubusercontent.com/assets/3516444/10712006/cfd43dd6-7ac7-11e5-9084-d44c6a1656d7.png)
 
 ## 設定
 ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
