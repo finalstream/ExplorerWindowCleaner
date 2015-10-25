@@ -43,7 +43,7 @@ namespace ExplorerWindowCleaner.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("08:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("05:00:00")]
         public global::System.TimeSpan ExpireInterval {
             get {
                 return ((global::System.TimeSpan)(this["ExpireInterval"]));
