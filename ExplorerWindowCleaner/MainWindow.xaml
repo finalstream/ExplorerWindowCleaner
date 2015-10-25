@@ -118,6 +118,11 @@
                             <Image Source="Resources/copyclipboard.png" Stretch="Uniform"/>
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Header="Delete Location" Click="DeleteLocationMenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/close.png" Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.RowStyle>

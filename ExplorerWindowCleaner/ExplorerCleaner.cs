@@ -354,6 +354,13 @@ namespace ExplorerWindowCleaner
 
         }
 
+        public void RemoveClosedDictionary(Explorer explorer)
+        {
+            Explorer removeExplorer;
+            _closedExplorerDic.TryRemove(explorer.LocationKey, out removeExplorer);
+            ClosedExplorers.Remove(removeExplorer);
+        }
+
         public void OpenExplorer(Explorer explorer, bool isMinimized = false)
         {
             var path = !explorer.IsSpecialFolder? explorer.LocationPath : _specialFolderManager.ConvertSpecialFolder(explorer.LocationName);

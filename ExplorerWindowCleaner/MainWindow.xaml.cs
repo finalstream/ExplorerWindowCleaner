@@ -296,5 +296,11 @@ namespace ExplorerWindowCleaner
 
             _ec.CloseExplorer(explorer);
         }
+
+        private void DeleteLocationMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentExplorer == null) return;
+            _ec.RemoveClosedDictionary(CurrentExplorer);
+        }
     }
 }
