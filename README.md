@@ -60,7 +60,7 @@ ExplorerWindowCleaner.exe.configをテキストエディタで編集すること
 ##### Icon         : David Vignoni http://www.icon-king.com/ , Turbomilk http://turbomilk.com/ , Momentum http://www.momentumdesignlab.com/ (CC BY-SA 3.0 US) , Yusuke Kamiyamane http://p.yusukekamiyamane.com/ (CC BY 3.0) , Material Design Icons https://materialdesignicons.com/
 
 ## TODO
-10/25 すべて実装しました。今後はIssuesで管理します。
+10/25 すべて実装しました。今後はIssuesで管理します。ご要望がありましたら追加ください。
 
 * ~~更新しなくなるときがある。→原因調査中。。~~
 * ~~ピン留めのパスが変更されたとき、ピン留めパスのウインドウを開く。~~
