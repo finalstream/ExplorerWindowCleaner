@@ -37,6 +37,8 @@ namespace ExplorerWindowCleaner
                     {"ごみ箱", "RecycleBinFolder"},
                     {"コントロールパネル", "::{26EE0668-A00A-44D7-9371-BEB064C98683}"},
                     {"すべてのコントロール パネル項目", "ControlPanelFolder"},
+                    {"プログラムと機能", "ChangeRemoveProgramsFolder"},
+                    {"ネットワーク接続", "ConnectionsFolder"},
                 } 
             
             }
