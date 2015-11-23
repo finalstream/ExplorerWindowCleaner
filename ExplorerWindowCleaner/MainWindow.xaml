@@ -4,13 +4,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:explorerWindowCleaner="clr-namespace:ExplorerWindowCleaner"
         xmlns:converters="clr-namespace:ExplorerWindowCleaner.Converters"
-        Title="Explorer Window Cleaner" Height="350" Width="550" Icon="icon.ico"
+        Title="Explorer Window Cleaner" Height="350" Width="600" Icon="icon.ico"
         GlowBrush="{DynamicResource AccentColorBrush}"
         ShowMaxRestoreButton="False"
         ShowIconOnTitleBar="False">
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Content="New Window" Click="NewWindow_OnClick" />
+            <Button Content="Open Favs" Click="OpenFavs_OnClick" />
             <Button Click="Version_OnClick">
                 <Rectangle Width="16" Height="16"
                    Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
@@ -53,12 +54,12 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0"  Background="#333333">
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding NowWindowCount, StringFormat= Now: {0}}" Margin="5"  Padding="5,0,0,0"></TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding PinedCount, StringFormat= Pined: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding MaxWindowCount, StringFormat= MaxOpen: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
-            <TextBlock Foreground="WhiteSmoke" Text="{Binding TotalClosedWindow, StringFormat= TotalClosed: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
-            <TextBlock  Style="{StaticResource LinkText}" Text="OpenFavorite" Margin="5" Padding="15,0,0,0" MouseDown="OpenFavorited_OnMouseDown"></TextBlock>
-            <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
+            <TextBlock Foreground="DarkGray" Text="{Binding PinedCount, StringFormat= Pined: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
+            <TextBlock Foreground="DarkGray" Text="{Binding MaxWindowCount, StringFormat= MaxOpen: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
+            <TextBlock Foreground="DarkGray" Text="{Binding TotalClosedWindow, StringFormat= TotalClosed: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
+            
+            <TextBlock  Style="{StaticResource LinkText}" Text="Show Application" Margin="5" Padding="15,0,0,0"></TextBlock>
+            <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchViewLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
         </DockPanel>
         <!-- NowWindows DataGrid -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">

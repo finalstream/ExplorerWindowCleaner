@@ -39,7 +39,7 @@ namespace ExplorerWindowCleaner
                 this.Visibility = Visibility.Hidden;
             };
 
-            SwitchLabel = ClosedWindows;
+            SwitchViewLabel = ClosedWindows;
         }
 
         public ObservableCollection<Explorer> NowExplorers
@@ -154,18 +154,35 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        #region SwitchLabel変更通知プロパティ
+        #region SwitchViewLabel変更通知プロパティ
 
-        private string _switchLabel;
+        private string _switchViewLabel;
 
-        public string SwitchLabel
+        public string SwitchViewLabel
         {
-            get { return _switchLabel; }
+            get { return _switchViewLabel; }
             set
             {
-                if (_switchLabel == value) return;
-                _switchLabel = value;
-                OnPropertyChanged("SwitchLabel");
+                if (_switchViewLabel == value) return;
+                _switchViewLabel = value;
+                OnPropertyChanged("SwitchViewLabel");
+            }
+        }
+
+        #endregion
+
+        #region SwitchShowApplicationLabel変更通知プロパティ
+
+        private string _SwitchShowApplicationLabel;
+
+        public string SwitchShowApplicationLabel
+        {
+            get { return _SwitchShowApplicationLabel; }
+            set
+            {
+                if (_SwitchShowApplicationLabel == value) return;
+                _SwitchShowApplicationLabel = value;
+                OnPropertyChanged("SwitchShowApplicationLabel");
             }
         }
 
@@ -210,11 +227,11 @@ namespace ExplorerWindowCleaner
         {
             if (IsShowClosed)
             {
-                SwitchLabel = ClosedWindows;
+                SwitchViewLabel = ClosedWindows;
             }
             else
             {
-                SwitchLabel = NowWindows;
+                SwitchViewLabel = NowWindows;
             }
             IsShowClosed = !IsShowClosed;
         }
@@ -224,12 +241,6 @@ namespace ExplorerWindowCleaner
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
             _ec.OpenExplorer(explorer);
-        }
-
-
-        private void OpenFavorited_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _ec.OpenFavoritedExplorer();
         }
 
         private void Favorite_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -301,6 +312,11 @@ namespace ExplorerWindowCleaner
         {
             if (CurrentExplorer == null) return;
             _ec.RemoveClosedDictionary(CurrentExplorer);
+        }
+
+        private void OpenFavs_OnClick(object sender, RoutedEventArgs e)
+        {
+            _ec.OpenFavoritedExplorer();
         }
     }
 }
