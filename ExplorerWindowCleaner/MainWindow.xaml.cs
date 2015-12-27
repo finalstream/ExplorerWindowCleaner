@@ -40,6 +40,7 @@ namespace ExplorerWindowCleaner
             };
 
             SwitchViewLabel = ClosedWindows;
+            IsShowApplication = ec.IsShowApplication;
         }
 
         public ObservableCollection<Explorer> NowExplorers
@@ -149,6 +150,24 @@ namespace ExplorerWindowCleaner
                 if (_isShowClosed == value) return;
                 _isShowClosed = value;
                 OnPropertyChanged("IsShowClosed");
+            }
+        }
+
+        #endregion
+
+        #region IsShowApplication変更通知プロパティ
+
+        private bool _IsShowApplication;
+
+        public bool IsShowApplication
+        {
+            get { return _IsShowApplication; }
+            set
+            {
+                if (_IsShowApplication == value) return;
+                _IsShowApplication = value;
+                _ec.IsShowApplication = value;
+                OnPropertyChanged("IsShowApplication");
             }
         }
 
@@ -317,6 +336,11 @@ namespace ExplorerWindowCleaner
         private void OpenFavs_OnClick(object sender, RoutedEventArgs e)
         {
             _ec.OpenFavoritedExplorer();
+        }
+
+        private void ShowApplocation_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            IsShowApplication = !IsShowApplication;
         }
     }
 }

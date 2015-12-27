@@ -58,7 +58,20 @@
             <TextBlock Foreground="DarkGray" Text="{Binding MaxWindowCount, StringFormat= MaxOpen: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
             <TextBlock Foreground="DarkGray" Text="{Binding TotalClosedWindow, StringFormat= TotalClosed: {0}}" Margin="5" Padding="10,0,0,0"></TextBlock>
             
-            <TextBlock  Style="{StaticResource LinkText}" Text="Show Application" Margin="5" Padding="15,0,0,0"></TextBlock>
+            <TextBlock Text="Show Application" Margin="5" Padding="15,0,0,0" MouseDown="ShowApplocation_OnMouseDown">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsShowApplication}" Value="True">
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsShowApplication}" Value="False">
+                                <Setter Property="Foreground" Value="DarkGray"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
             <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchViewLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
         </DockPanel>
         <!-- NowWindows DataGrid -->
