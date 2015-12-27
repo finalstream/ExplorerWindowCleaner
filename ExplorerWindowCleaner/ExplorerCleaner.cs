@@ -327,6 +327,7 @@ namespace ExplorerWindowCleaner
             ClosedExplorers.Clear();
             foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsFavorited).ThenByDescending(x=>x.LastUpdateDateTime))
             {
+                if (!IsShowApplication && !closedExplorer.IsExplorer) continue; // アプリ非表示のときはアプリは表示しない
                 ClosedExplorers.Add(closedExplorer);
             }
         }
