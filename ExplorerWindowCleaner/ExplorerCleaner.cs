@@ -102,6 +102,7 @@ namespace ExplorerWindowCleaner
         {
             if (!File.Exists(NowFileName)) return;
             var oldNows = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(NowFileName));
+            if (oldNows == null) return;
             // 復元用ディクショナリ
             _restoreExplorerDic = oldNows.GroupBy(x => x.Handle)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -111,6 +112,7 @@ namespace ExplorerWindowCleaner
         {
             if (!File.Exists(HistoryFileName)) return;
             var histories = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
+            if (histories == null) return;
             _closedExplorerDic = new ConcurrentDictionary<string, Explorer>(histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x));
         }
 
