@@ -39,7 +39,8 @@ namespace ExplorerWindowCleaner
                 this.Visibility = Visibility.Hidden;
             };
 
-            SwitchLabel = ClosedWindows;
+            SwitchViewLabel = ClosedWindows;
+            IsShowApplication = ec.IsShowApplication;
         }
 
         public ObservableCollection<Explorer> NowExplorers
@@ -154,18 +155,53 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        #region SwitchLabel変更通知プロパティ
+        #region IsShowApplication変更通知プロパティ
 
-        private string _switchLabel;
+        private bool _IsShowApplication;
 
-        public string SwitchLabel
+        public bool IsShowApplication
         {
-            get { return _switchLabel; }
+            get { return _IsShowApplication; }
             set
             {
-                if (_switchLabel == value) return;
-                _switchLabel = value;
-                OnPropertyChanged("SwitchLabel");
+                if (_IsShowApplication == value) return;
+                _IsShowApplication = value;
+                _ec.IsShowApplication = value;
+                OnPropertyChanged("IsShowApplication");
+            }
+        }
+
+        #endregion
+
+        #region SwitchViewLabel変更通知プロパティ
+
+        private string _switchViewLabel;
+
+        public string SwitchViewLabel
+        {
+            get { return _switchViewLabel; }
+            set
+            {
+                if (_switchViewLabel == value) return;
+                _switchViewLabel = value;
+                OnPropertyChanged("SwitchViewLabel");
+            }
+        }
+
+        #endregion
+
+        #region SwitchShowApplicationLabel変更通知プロパティ
+
+        private string _SwitchShowApplicationLabel;
+
+        public string SwitchShowApplicationLabel
+        {
+            get { return _SwitchShowApplicationLabel; }
+            set
+            {
+                if (_SwitchShowApplicationLabel == value) return;
+                _SwitchShowApplicationLabel = value;
+                OnPropertyChanged("SwitchShowApplicationLabel");
             }
         }
 
@@ -210,11 +246,11 @@ namespace ExplorerWindowCleaner
         {
             if (IsShowClosed)
             {
-                SwitchLabel = ClosedWindows;
+                SwitchViewLabel = ClosedWindows;
             }
             else
             {
-                SwitchLabel = NowWindows;
+                SwitchViewLabel = NowWindows;
             }
             IsShowClosed = !IsShowClosed;
         }
@@ -224,12 +260,6 @@ namespace ExplorerWindowCleaner
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
             _ec.OpenExplorer(explorer);
-        }
-
-
-        private void OpenFavorited_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _ec.OpenFavoritedExplorer();
         }
 
         private void Favorite_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -301,6 +331,16 @@ namespace ExplorerWindowCleaner
         {
             if (CurrentExplorer == null) return;
             _ec.RemoveClosedDictionary(CurrentExplorer);
+        }
+
+        private void OpenFavs_OnClick(object sender, RoutedEventArgs e)
+        {
+            _ec.OpenFavoritedExplorer();
+        }
+
+        private void ShowApplocation_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            IsShowApplication = !IsShowApplication;
         }
     }
 }

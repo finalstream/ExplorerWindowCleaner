@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Annotations;
 using System.Windows.Data;
 using Newtonsoft.Json;
 using NLog;
@@ -44,6 +45,7 @@ namespace ExplorerWindowCleaner
 
         
         public bool IsAutoCloseUnused { get; set; }
+        public bool IsShowApplication { get; set; }
         public int WindowCount { get { return _explorerDic.Count; } }
         public int PinedCount { get { return _explorerDic.Values.Count(x => x.IsPined); }}
         public int MaxWindowCount { get; private set; }
@@ -100,6 +102,7 @@ namespace ExplorerWindowCleaner
         {
             if (!File.Exists(NowFileName)) return;
             var oldNows = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(NowFileName));
+            if (oldNows == null) return;
             // 復元用ディクショナリ
             _restoreExplorerDic = oldNows.GroupBy(x => x.Handle)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -109,6 +112,7 @@ namespace ExplorerWindowCleaner
         {
             if (!File.Exists(HistoryFileName)) return;
             var histories = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
+            if (histories == null) return;
             _closedExplorerDic = new ConcurrentDictionary<string, Explorer>(histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x));
         }
 
@@ -157,62 +161,61 @@ namespace ExplorerWindowCleaner
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
 
             _log.Debug("ShellWindows[{0}]", _shellWindows.Count);
-            
-            foreach (InternetExplorer ie in _shellWindows)
+
+            var userApps = Process.GetProcesses().Where(x => x.MainWindowHandle != IntPtr.Zero).Select(x=> new UserApplication(x)).Where(x=> !x.IsExplorer);
+
+            var ies = _shellWindows.Cast<InternetExplorer>().Concat(userApps);
+
+            foreach (InternetExplorer ie in ies)
             {
 
-                var iename = Path.GetFileNameWithoutExtension(ie.FullName);
-                if (iename == null) continue;
-                var loweriename = iename.ToLower();
+                if (ie.FullName == null) continue;
 
-                if (loweriename.Equals("explorer"))
+                var handle = ie.HWND;
+                if (handle == 0) continue;
+                if (!_explorerDic.Keys.Contains(handle))
                 {
-                    var handle = ie.HWND;
-                    if (handle == 0) continue;
-                    if (!_explorerDic.Keys.Contains(handle))
+                    var explorer = new Explorer(ie);
+                    if (_isKeepPin)
                     {
-                        var explorer = new Explorer(ie);
+                        explorer.PinLocationChanged += (sender, pinexp) =>
+                        {
+                            // ピン留めでパスが変わったらピン留めのパスを開く（キープ）
+                            OpenExplorer(pinexp, true);
+                            // ピンキープのためにキーを保存
+                            _pinedRestoreHashSet.Add(pinexp.LocationKey);
+                        };
+
+                        // ピン復元
+                        if (_pinedRestoreHashSet.Contains(explorer.LocationKey))
+                        {
+                            explorer.IsPined = true;
+                            _pinedRestoreHashSet.Remove(explorer.LocationKey);
+                        }
+                    }
+
+                    RegistExplorer(explorer);
+                        
+                }
+                else
+                {
+                    closedExplorerHandleList.Remove(handle);
+
+                    // よくわからないけどここでKeyNotFoundが出る場合があるのでTryGetする。
+                    Explorer explorer;
+                    if (_explorerDic.TryGetValue(handle, out explorer))
+                    {
                         if (_isKeepPin)
                         {
-                            explorer.PinLocationChanged += (sender, pinexp) =>
-                            {
-                                // ピン留めでパスが変わったらピン留めのパスを開く（キープ）
-                                OpenExplorer(pinexp, true);
-                                // ピンキープのためにキーを保存
-                                _pinedRestoreHashSet.Add(pinexp.LocationKey);
-                            };
-
-                            // ピン復元
-                            if (_pinedRestoreHashSet.Contains(explorer.LocationKey))
-                            {
-                                explorer.IsPined = true;
-                                _pinedRestoreHashSet.Remove(explorer.LocationKey);
-                            }
+                            explorer.UpdateWithKeepPin(ie);
                         }
-
-                        RegistExplorer(explorer);
-                        
-                    }
-                    else
-                    {
-                        closedExplorerHandleList.Remove(handle);
-
-                        // よくわからないけどここでKeyNotFoundが出る場合があるのでTryGetする。
-                        Explorer explorer;
-                        if (_explorerDic.TryGetValue(handle, out explorer))
+                        else
                         {
-                            if (_isKeepPin)
-                            {
-                                explorer.UpdateWithKeepPin(ie);
-                            }
-                            else
-                            {
-                                explorer.Update(ie);
-                            }
+                            explorer.Update(ie);
                         }
                     }
                 }
-            }
+        }
 
             // すでに終了されたものがあればディクショナリから削除
             foreach (var closedHandle in closedExplorerHandleList)
@@ -226,7 +229,7 @@ namespace ExplorerWindowCleaner
                 
             }
 
-            var duplicateExplorers = _explorerDic
+            var duplicateExplorers = _explorerDic.Where(x=>x.Value.IsExplorer)
                 .GroupBy(g => g.Value.LocationKey)
                 .Select(g => new {Explorer = g, Count = g.Count()})
                 .Where(x => x.Count > 1).ToArray();　// Count > 1はいらないけど、旧バージョンからの互換のためにしばらく残す
@@ -292,6 +295,7 @@ namespace ExplorerWindowCleaner
         {
             var histories =
                 _closedExplorerDic.Values.ToArray()
+                    .Where(x=> x.IsFavorited || x.IsExplorer) // お気に入りでないアプリは保存しない
                     .OrderByDescending(x => x.IsFavorited)
                     .ThenByDescending(x => x.LastUpdateDateTime).Take(_exportLimitNum);
             var historySerialized = JsonConvert.SerializeObject(histories, Formatting.Indented);
@@ -316,12 +320,14 @@ namespace ExplorerWindowCleaner
             Explorers.Clear();
             foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.IsPined).ThenByDescending(x => x.LastUpdateDateTime))
             {
+                if (!IsShowApplication && !aliveExplorer.IsExplorer) continue; // アプリ非表示のときはアプリは表示しない
                 Explorers.Add(aliveExplorer);
             }
 
             ClosedExplorers.Clear();
             foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsFavorited).ThenByDescending(x=>x.LastUpdateDateTime))
             {
+                if (!IsShowApplication && !closedExplorer.IsExplorer) continue; // アプリ非表示のときはアプリは表示しない
                 ClosedExplorers.Add(closedExplorer);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using ExplorerWindowCleaner.Annotations;
 using Newtonsoft.Json;
@@ -29,7 +30,7 @@ namespace ExplorerWindowCleaner
         #endregion
 
         [JsonConstructor]
-        public Explorer(DateTime registDateTime, DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited)
+        public Explorer(DateTime registDateTime, DateTime lastUpdateDateTime, int handle, string locationUrl, string locationName, bool isPined, int closeCount, bool isFavorited, bool? isExplorer)
         {
             RegistDateTime = registDateTime;
             LastUpdateDateTime = lastUpdateDateTime;
@@ -39,6 +40,7 @@ namespace ExplorerWindowCleaner
             IsPined = isPined;
             IsFavorited = isFavorited;
             CloseCount = closeCount;
+            IsExplorer = isExplorer ?? true; // v1.2互換のため
         }
 
         public Explorer(InternetExplorer instance)
@@ -50,6 +52,9 @@ namespace ExplorerWindowCleaner
             Instance = instance;
             LastUpdateDateTime = DateTime.Now;
             IsPined = false;
+
+            var iename = Path.GetFileNameWithoutExtension(instance.FullName);
+            IsExplorer = iename.ToLower().Equals("explorer");
         }
 
         [JsonIgnore]
@@ -65,6 +70,7 @@ namespace ExplorerWindowCleaner
         public string LocationPath { get { return !IsSpecialFolder ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         [JsonIgnore]
         public InternetExplorer Instance { get; private set; }
+        public bool IsExplorer { get; private set; }
         
         public bool IsPined { get; set; }
         public bool IsFavorited { get; set; }
