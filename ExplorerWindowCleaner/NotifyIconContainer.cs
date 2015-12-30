@@ -59,7 +59,6 @@ namespace ExplorerWindowCleaner
                
             };
 
-            _explorerCleaner.Start();
         }
 
         private void ToolStripMenuItemStartupOnClick(object sender, EventArgs eventArgs)
