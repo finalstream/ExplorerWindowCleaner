@@ -32,47 +32,42 @@ namespace ExplorerWindowCleaner
         private Dictionary<int, Explorer> _restoreExplorerDic;
         private ConcurrentDictionary<string, Explorer> _closedExplorerDic;
         private HashSet<string> _pinedRestoreHashSet; 
-        private readonly TimeSpan _expireInterval;
-        private readonly int _exportLimitNum;
-        private readonly bool _isKeepPin;
         private ShellWindows _shellWindows;
         private SpecialFolderManager _specialFolderManager;
 
+        private ExplorerWindowCleanerAppConfig _appConfig;
         private string _lastSerializeNow;
         private string _lastSerializeHistory;
+        private DateTime _expireDateTime;
+        private int _maxWindowCount;
+        private int _totalCloseWindowCount;
 
-        
-        public bool IsAutoCloseUnused { get; set; }
         public bool IsShowApplication { get; set; }
         public int WindowCount { get { return _explorerDic.Values.Count(x => x.IsExplorer); } }
         public int PinedCount { get { return _explorerDic.Values.Count(x => x.IsPined); }}
-        public int MaxWindowCount { get; private set; }
-        public int TotalCloseWindowCount { get; private set; }
-        public DateTime ExporeDateTime { get; private set; }
+        
 
-        #region WindowClosedイベント
+        #region WCleanedイベント
 
         // Event object
-        public event EventHandler<WindowClosedEventArgs> WindowClosed;
+        public event EventHandler<CleanedEventArgs> Cleaned;
 
-        protected virtual void OnWindowClosed(ICollection<string> closeWindowTitles)
+        protected virtual void OnCleaned(ICollection<string> closeWindowTitles)
         {
-            var handler = this.WindowClosed;
+            var handler = this.Cleaned;
             if (handler != null)
             {
-                handler(this, new WindowClosedEventArgs(closeWindowTitles));
+                handler(this, new CleanedEventArgs(
+                    closeWindowTitles, WindowCount, _expireDateTime, _maxWindowCount, PinedCount, _totalCloseWindowCount));
             }
         }
 
         #endregion
 
 
-        public ExplorerCleaner(bool isAutoCloseUnused, TimeSpan expireInterval, int exportLimitNum, bool isKeepPin)
+        internal ExplorerCleaner(ExplorerWindowCleanerAppConfig appConfig)
         {
-            IsAutoCloseUnused = isAutoCloseUnused;
-            _expireInterval = expireInterval;
-            _exportLimitNum = exportLimitNum;
-            _isKeepPin = isKeepPin;
+            _appConfig = appConfig;
             _explorerDic = new Dictionary<int, Explorer>();
             _closedExplorerDic = new ConcurrentDictionary<string, Explorer>();
             _restoreExplorerDic = new Dictionary<int, Explorer>();
@@ -120,7 +115,7 @@ namespace ExplorerWindowCleaner
         public void Clean()
         {
             var closeWindowTitles = CleanCore();
-            OnWindowClosed(closeWindowTitles);
+            OnCleaned(closeWindowTitles);
         }
 
         /// <summary>
@@ -149,7 +144,7 @@ namespace ExplorerWindowCleaner
                 if (!_explorerDic.Keys.Contains(handle))
                 {
                     var explorer = new Explorer(ie);
-                    if (_isKeepPin)
+                    if (_appConfig.IsKeepPin)
                     {
                         explorer.PinLocationChanged += (sender, pinexp) =>
                         {
@@ -178,7 +173,7 @@ namespace ExplorerWindowCleaner
                     Explorer explorer;
                     if (_explorerDic.TryGetValue(handle, out explorer))
                     {
-                        if (_isKeepPin)
+                        if (_appConfig.IsKeepPin)
                         {
                             explorer.UpdateWithKeepPin(ie);
                         }
@@ -219,13 +214,13 @@ namespace ExplorerWindowCleaner
             }
 
             // 期限切れのものがあれば閉じる
-            if (IsAutoCloseUnused && _expireInterval != TimeSpan.Zero)
+            if (_appConfig.IsAutoCloseUnused && _appConfig.ExpireInterval != TimeSpan.Zero)
             {
-                ExporeDateTime = DateTime.Now.Subtract(_expireInterval);
-                _log.Debug("Expire Datetime {0}", ExporeDateTime);
+                _expireDateTime = DateTime.Now.Subtract(_appConfig.ExpireInterval);
+                _log.Debug("Expire Datetime {0}", _expireDateTime);
 
                 var explorers = _explorerDic.Values.Where(x => x.IsExplorer).ToArray();
-                foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < ExporeDateTime))
+                foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < _expireDateTime))
                 {
                     _log.Debug("Expire Explorer {0}", expireExplorer);
                     if (CloseExplorer(expireExplorer)) closeWindowTitles.Add(expireExplorer.LocationName);
@@ -237,8 +232,8 @@ namespace ExplorerWindowCleaner
 
             Save();
 
-            if (WindowCount > MaxWindowCount) MaxWindowCount = WindowCount;
-            TotalCloseWindowCount += closeWindowTitles.Count;
+            if (WindowCount > _maxWindowCount) _maxWindowCount = WindowCount;
+            _totalCloseWindowCount += closeWindowTitles.Count;
 
             return closeWindowTitles;
         }
@@ -270,7 +265,7 @@ namespace ExplorerWindowCleaner
                 _closedExplorerDic.Values.ToArray()
                     .Where(x=> x.IsFavorited || x.IsExplorer) // お気に入りでないアプリは保存しない
                     .OrderByDescending(x => x.IsFavorited)
-                    .ThenByDescending(x => x.LastUpdateDateTime).Take(_exportLimitNum);
+                    .ThenByDescending(x => x.LastUpdateDateTime).Take(_appConfig.ExportLimitNum);
             var historySerialized = JsonConvert.SerializeObject(histories, Formatting.Indented);
             if (historySerialized == _lastSerializeHistory) return; // 同じであれば何もしない
             File.WriteAllText(HistoryFileName, historySerialized);

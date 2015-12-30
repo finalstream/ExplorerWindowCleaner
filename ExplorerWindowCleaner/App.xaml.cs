@@ -13,6 +13,11 @@ namespace ExplorerWindowCleaner
         private ExplorerWindowCleanerClient _client;
 
         /// <summary>
+        ///     タスクトレイに表示するアイコン
+        /// </summary>
+        private NotifyIconContainer _notifyIcon;
+
+        /// <summary>
         ///     System.Windows.Application.Startup イベント を発生させます。
         /// </summary>
         /// <param name="e">イベントデータ を格納している StartupEventArgs</param>
@@ -23,6 +28,8 @@ namespace ExplorerWindowCleaner
 
             _client = new ExplorerWindowCleanerClient(Assembly.GetExecutingAssembly());
             _client.Initialize();
+
+            _notifyIcon = new NotifyIconContainer(_client);
             
         }
 
@@ -35,6 +42,7 @@ namespace ExplorerWindowCleaner
             base.OnExit(e);
             _client.Finish();
             _client.Dispose();
+            _notifyIcon.Dispose();
         }
     }
 }

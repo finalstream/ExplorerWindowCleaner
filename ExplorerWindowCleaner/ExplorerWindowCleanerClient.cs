@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,39 +14,69 @@ using MahApps.Metro;
 
 namespace ExplorerWindowCleaner
 {
-    class ExplorerWindowCleanerClient : AppClient
+    public class ExplorerWindowCleanerClient : AppClient
     {
 
+        private ActionExecuter<ExplorerWindowCleanerClientOperator> _actionExecuter;
         private ExplorerCleaner _explorerCleaner;
 
-        /// <summary>
-        ///     タスクトレイに表示するアイコン
-        /// </summary>
-        private NotifyIconContainer _notifyIcon;
+        #region WindowClosedイベント
+
+        // Event object
+        public event EventHandler<CleanedEventArgs> Cleaned;
+
+        protected virtual void OnCleaned(CleanedEventArgs args)
+        {
+            var handler = this.Cleaned;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        #endregion
+
+        private ExplorerWindowCleanerAppConfig _appConfig;
+        internal new ExplorerWindowCleanerAppConfig AppConfig
+        {
+            get
+            {
+                return _appConfig;
+            }
+            private set
+            {
+                _appConfig = value;
+                base.AppConfig = value;
+            }
+        }
 
         public ExplorerWindowCleanerClient(Assembly executingAssembly) : base(executingAssembly)
         {
-
+            
+            
         }
 
+        public ObservableCollection<Explorer> Explorers { get { return _explorerCleaner.Explorers; } }
+
+        public ObservableCollection<Explorer> ClosedExplorers { get { return _explorerCleaner.ClosedExplorers; } }
+        
         protected override void InitializeCore()
         {
+            _appConfig = new ExplorerWindowCleanerAppConfig(ExecutingAssemblyInfo.FileVersion, Settings.Default);
+
             // get the theme from the current application
             var theme = ThemeManager.DetectAppStyle(Application.Current);
 
             // now set the Green accent and dark theme
             ThemeManager.ChangeAppStyle(Application.Current,
-                                        ThemeManager.GetAccent(Settings.Default.AccentColor),
-                                        ThemeManager.GetAppTheme(Settings.Default.AppTheme));
+                                        ThemeManager.GetAccent(AppConfig.AccentColor),
+                                        ThemeManager.GetAppTheme(AppConfig.AppTheme));
 
-            _explorerCleaner = new ExplorerCleaner(
-                Settings.Default.IsAutoCloseUnused,
-                Settings.Default.ExpireInterval,
-                Settings.Default.ExportLimitNum,
-                Settings.Default.IsKeepPin);
-            _notifyIcon = new NotifyIconContainer(_explorerCleaner);
+            _explorerCleaner = new ExplorerCleaner(AppConfig);
+            _explorerCleaner.Cleaned += (sender, args) => OnCleaned(args);
+            _actionExecuter = new ActionExecuter<ExplorerWindowCleanerClientOperator>(new ExplorerWindowCleanerClientOperator(this, _explorerCleaner));
 
-            ResetBackgroundWorker(Settings.Default.Interval, new BackgroundAction[] { new CleanerAction(_explorerCleaner) });
+            ResetBackgroundWorker(Settings.Default.Interval, new BackgroundAction[] { new CleanerAction(this) });
         }
 
         protected override void FinalizeCore()
@@ -77,7 +108,7 @@ namespace ExplorerWindowCleaner
                 // Free any other managed objects here.
                 //
                 base.Dispose();
-                _notifyIcon.Dispose();
+                
             }
 
             // Free any unmanaged objects here.
@@ -87,6 +118,51 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        
+        public void SwitchPin(Explorer explorer)
+        {
+            _actionExecuter.Post(new SwitchPinAction(explorer));
+        }
+
+        public void OpenExplorer(Explorer explorer)
+        {
+            _explorerCleaner.OpenExplorer(explorer);
+        }
+
+        public void AddFavorite(Explorer explorer)
+        {
+            _actionExecuter.Post(new AddFavoriteAction(explorer));
+        }
+
+        public void OpenExplorer(string shellcommand)
+        {
+            _explorerCleaner.OpenExplorer(shellcommand);
+        }
+
+        public void CloseExplorer(Explorer explorer)
+        {
+            _actionExecuter.Post(new CloseExplorerAction(explorer));
+        }
+
+        public void RemoveExplorer(Explorer explorer)
+        {
+            _actionExecuter.Post(new RemoveExplorerAction(explorer));
+        }
+
+        public void OpenFavoritedExplorer()
+        {
+            _explorerCleaner.OpenFavoritedExplorer();
+        }
+
+        public bool SwitchShowApplication()
+        {
+            _explorerCleaner.IsShowApplication = !_explorerCleaner.IsShowApplication;
+            Clean();
+            return _explorerCleaner.IsShowApplication;
+        }
+
+        public void Clean()
+        {
+            _actionExecuter.Post(new CleanAction());
+        }
     }
 }

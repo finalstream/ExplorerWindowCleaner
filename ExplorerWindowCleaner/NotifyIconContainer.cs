@@ -13,17 +13,17 @@ namespace ExplorerWindowCleaner
 {
     public partial class NotifyIconContainer : Component
     {
-        private readonly ExplorerCleaner _explorerCleaner;
+        private readonly ExplorerWindowCleanerClient _ewClient;
         private readonly MainWindow _mainWindow;
 
         private readonly string _ewclink = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),
                     "ExplorerWindowCleaner.lnk");
 
-        public NotifyIconContainer(ExplorerCleaner explorerCleaner)
+        public NotifyIconContainer(ExplorerWindowCleanerClient client)
         {
-            _explorerCleaner = explorerCleaner;
+            _ewClient = client;
             
-            _mainWindow = new MainWindow(_explorerCleaner);
+            _mainWindow = new MainWindow(_ewClient);
             InitializeComponent();
             
             // コンテキストメニューの設定
@@ -34,15 +34,15 @@ namespace ExplorerWindowCleaner
             toolStripMenuItemStartup.Click += ToolStripMenuItemStartupOnClick;
             toolStripMenuItemAutoClose.Checked = Properties.Settings.Default.IsAutoCloseUnused;
 
-            _explorerCleaner.WindowClosed += (sender, args) =>
+            _ewClient.Cleaned += (sender, args) =>
             {
                 
                 _mainWindow.Dispatcher.Invoke(() =>
                 {
-                    notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", _explorerCleaner.WindowCount);
-                    toolStripMenuItemAutoClose.Text = _explorerCleaner.IsAutoCloseUnused
+                    notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", args.WindowCount);
+                    toolStripMenuItemAutoClose.Text = _ewClient.AppConfig.IsAutoCloseUnused
                         ? string.Format("Auto Close Unused expire:{0}",
-                            _explorerCleaner.ExporeDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                            args.ExpireDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                         : "Auto Close Unused";
                     if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
                     {
@@ -50,10 +50,10 @@ namespace ExplorerWindowCleaner
                             string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),
                             string.Format("{0}", string.Join("\n", args.CloseWindowTitles)), ToolTipIcon.Info);
                     }
-                    _mainWindow.NowWindowCount = _explorerCleaner.WindowCount;
-                    _mainWindow.MaxWindowCount = _explorerCleaner.MaxWindowCount;
-                    _mainWindow.PinedCount = _explorerCleaner.PinedCount;
-                    _mainWindow.TotalClosedWindow = _explorerCleaner.TotalCloseWindowCount;
+                    _mainWindow.NowWindowCount = args.WindowCount;
+                    _mainWindow.MaxWindowCount = args.MaxWindowCount;
+                    _mainWindow.PinedCount = args.PinedCount;
+                    _mainWindow.TotalClosedWindow = args.TotalCloseWindowCount;
                 });
                 
                
@@ -125,7 +125,7 @@ namespace ExplorerWindowCleaner
         private void ToolStripMenuItemAutoCloseOnClick(object sender, EventArgs eventArgs)
         {
             toolStripMenuItemAutoClose.Checked = !toolStripMenuItemAutoClose.Checked;
-            _explorerCleaner.IsAutoCloseUnused = toolStripMenuItemAutoClose.Checked;
+            _ewClient.AppConfig.IsAutoCloseUnused = toolStripMenuItemAutoClose.Checked;
         }
 
         public NotifyIconContainer(IContainer container)

@@ -10,16 +10,16 @@ namespace ExplorerWindowCleaner.Actions
     class CleanerAction : BackgroundAction
     {
 
-        private ExplorerCleaner _explorerCleaner;
+        private ExplorerWindowCleanerClient _client;
 
-        public CleanerAction(ExplorerCleaner ec)
+        public CleanerAction(ExplorerWindowCleanerClient ec)
         {
-            _explorerCleaner = ec;
+            _client = ec;
         }
 
         protected override void InvokeCoreAsync()
         {
-            _explorerCleaner.Clean();
+            _client.Clean();
         }
     }
 }

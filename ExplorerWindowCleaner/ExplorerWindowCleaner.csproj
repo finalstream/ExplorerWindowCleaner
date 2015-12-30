@@ -80,16 +80,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Actions\CleanAction.cs" />
     <Compile Include="Actions\CleanerAction.cs" />
+    <Compile Include="Actions\AddFavoriteAction.cs" />
     <Compile Include="AppUtils.cs" />
+    <Compile Include="Actions\CloseExplorerAction.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\IsPinedConverter.cs" />
     <Compile Include="Converters\IsFavoritedConverter.cs" />
+    <Compile Include="ExplorerWindowCleanerAppConfig.cs" />
     <Compile Include="ExplorerWindowCleanerClient.cs" />
+    <Compile Include="ExplorerWindowCleanerClientOperator.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Actions\RemoveExplorerAction.cs" />
     <Compile Include="SpecialFolderManager.cs" />
+    <Compile Include="Actions\SwitchPinAction.cs" />
     <Compile Include="UserApplication.cs" />
-    <Compile Include="WindowClosedEventArgs.cs" />
+    <Compile Include="CleanedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -24,11 +24,11 @@ namespace ExplorerWindowCleaner
 
         private static string ClosedWindows = "ClosedWindows";
         private static string NowWindows = "NowWindows";
-        private readonly ExplorerCleaner _ec;
+        private readonly ExplorerWindowCleanerClient _ewClient;
 
-        public MainWindow(ExplorerCleaner ec)
+        public MainWindow(ExplorerWindowCleanerClient ewClient)
         {
-            _ec = ec;
+            _ewClient = ewClient;
             InitializeComponent();
 
             DataContext = this;
@@ -40,17 +40,16 @@ namespace ExplorerWindowCleaner
             };
 
             SwitchViewLabel = ClosedWindows;
-            IsShowApplication = ec.IsShowApplication;
         }
 
         public ObservableCollection<Explorer> NowExplorers
         {
-            get { return _ec.Explorers; }
+            get { return _ewClient.Explorers; }
         }
 
         public ObservableCollection<Explorer> ClosedExplorers
         {
-            get { return _ec.ClosedExplorers; }
+            get { return _ewClient.ClosedExplorers; }
         }
 
         #region NowWindowCount変更通知プロパティ
@@ -166,7 +165,6 @@ namespace ExplorerWindowCleaner
             {
                 if (_IsShowApplication == value) return;
                 _IsShowApplication = value;
-                _ec.IsShowApplication = value;
                 OnPropertyChanged("IsShowApplication");
             }
         }
@@ -228,13 +226,9 @@ namespace ExplorerWindowCleaner
 
         private void Pin_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var item = (DataGridRow) ((FrameworkElement)sender).Tag;
+            var item = (DataGridRow)((FrameworkElement)sender).Tag;
             var explorer = (Explorer)item.DataContext;
-
-            explorer.SwitchPined();
-            var cloneExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(explorer));
-            cloneExplorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
-            _ec.AddOrUpdateClosedDictionary(cloneExplorer);
+            _ewClient.SwitchPin(explorer);
         }
 
         private void ClosedList_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -259,7 +253,8 @@ namespace ExplorerWindowCleaner
         {
             var item = (DataGridRow)sender;
             var explorer = (Explorer)item.DataContext;
-            _ec.OpenExplorer(explorer);
+
+            _ewClient.OpenExplorer(explorer);
         }
 
         private void Favorite_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -303,20 +298,19 @@ namespace ExplorerWindowCleaner
         private void OpenLocationMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentExplorer == null) return;
-            _ec.OpenExplorer(CurrentExplorer);
+            _ewClient.OpenExplorer(CurrentExplorer);
         }
 
         private void AddFavoriteMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentExplorer == null) return;
-            var cloneExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(CurrentExplorer));
-            cloneExplorer.IsFavorited = true; // ピン留めされたときにお気に入りに登録する。
-            _ec.AddOrUpdateClosedDictionary(cloneExplorer);
+
+            _ewClient.AddFavorite(CurrentExplorer);
         }
 
         private void NewWindow_OnClick(object sender, RoutedEventArgs e)
         {
-            _ec.OpenExplorer("shell:MyComputerFolder");
+            _ewClient.OpenExplorer("shell:MyComputerFolder");
         }
 
         private void Close_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -324,23 +318,25 @@ namespace ExplorerWindowCleaner
             var item = (DataGridRow)((FrameworkElement)sender).Tag;
             var explorer = (Explorer)item.DataContext;
 
-            _ec.CloseExplorer(explorer);
+            _ewClient.CloseExplorer(explorer);
         }
 
         private void DeleteLocationMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentExplorer == null) return;
-            _ec.RemoveClosedDictionary(CurrentExplorer);
+
+            _ewClient.RemoveExplorer(CurrentExplorer);
         }
 
         private void OpenFavs_OnClick(object sender, RoutedEventArgs e)
         {
-            _ec.OpenFavoritedExplorer();
+            _ewClient.OpenFavoritedExplorer();
         }
 
         private void ShowApplocation_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            IsShowApplication = !IsShowApplication;
+
+            IsShowApplication = _ewClient.SwitchShowApplication();
         }
     }
 }
