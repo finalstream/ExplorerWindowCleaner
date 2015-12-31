@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reflection;
+using System.Windows;
 using ExplorerWindowCleaner.Properties;
 using MahApps.Metro;
 
@@ -9,12 +10,12 @@ namespace ExplorerWindowCleaner
     /// </summary>
     public partial class App : Application
     {
-        private ExplorerCleaner _explorerCleaner;
+        private ExplorerWindowCleanerClient _client;
 
         /// <summary>
         ///     タスクトレイに表示するアイコン
         /// </summary>
-        private NotifyIconContainer notifyIcon;
+        private NotifyIconContainer _notifyIcon;
 
         /// <summary>
         ///     System.Windows.Application.Startup イベント を発生させます。
@@ -23,23 +24,13 @@ namespace ExplorerWindowCleaner
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            // get the theme from the current application
-            var theme = ThemeManager.DetectAppStyle(Application.Current);
-
-            // now set the Green accent and dark theme
-            ThemeManager.ChangeAppStyle(Application.Current,
-                                        ThemeManager.GetAccent(Settings.Default.AccentColor),
-                                        ThemeManager.GetAppTheme(Settings.Default.AppTheme));
-
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            _explorerCleaner = new ExplorerCleaner(
-                Settings.Default.Interval,
-                Settings.Default.IsAutoCloseUnused,
-                Settings.Default.ExpireInterval,
-                Settings.Default.ExportLimitNum,
-                Settings.Default.IsKeepPin);
-            notifyIcon = new NotifyIconContainer(_explorerCleaner);
+
+            _client = new ExplorerWindowCleanerClient(Assembly.GetExecutingAssembly());
+            _client.Initialize();
+
+            _notifyIcon = new NotifyIconContainer(_client);
+            
         }
 
         /// <summary>
@@ -49,14 +40,9 @@ namespace ExplorerWindowCleaner
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            _explorerCleaner.Dispose();
-            notifyIcon.Dispose();
-        }
-
-
-        private void App_OnExit(object sender, ExitEventArgs e)
-        {
-            _explorerCleaner.SaveExit();
+            _client.Finish();
+            _client.Dispose();
+            _notifyIcon.Dispose();
         }
     }
 }
