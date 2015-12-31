@@ -112,17 +112,11 @@ namespace ExplorerWindowCleaner
 
         public ObservableCollection<Explorer> ClosedExplorers { get; private set; }
 
-        public void Clean()
-        {
-            var closeWindowTitles = CleanCore();
-            OnCleaned(closeWindowTitles);
-        }
-
         /// <summary>
         /// エクスプローラのウインドウをクリーンします。
         /// </summary>
         /// <returns>クローズしたウインドウの名前リスト</returns>
-        private ICollection<string> CleanCore()
+        public void Clean()
         {
             var closeWindowTitles = new List<string>();
 
@@ -235,7 +229,7 @@ namespace ExplorerWindowCleaner
             if (WindowCount > _maxWindowCount) _maxWindowCount = WindowCount;
             _totalCloseWindowCount += closeWindowTitles.Count;
 
-            return closeWindowTitles;
+            OnCleaned(closeWindowTitles);
         }
 
         private void RegistExplorer(Explorer explorer)
@@ -307,7 +301,7 @@ namespace ExplorerWindowCleaner
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
             Explorers.Remove(explorer);
-            AddOrUpdateClosedDictionary(explorer);
+            if (explorer.IsExplorer) AddOrUpdateClosedDictionary(explorer); // エクスプローラだけ追加する
 
             return true;
         }
