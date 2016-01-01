@@ -20,17 +20,21 @@ namespace ExplorerWindowCleaner
             if (_executablePath == null)
             {
                 // 何らかの原因で取得に失敗した場合は不明なアプリとして対象外にする。
+                ProcessName = "";
                 IsUnknown = true;
+                IsExplorer = false;
             }
             else
             {
                 _fileVersionInfo = FileVersionInfo.GetVersionInfo(_executablePath);
+                ProcessName = Path.GetFileNameWithoutExtension(_executablePath);
+                IsExplorer = ProcessName.ToLower() == "explorer";
             }
         }
 
-        public string ProcessName {get { return Path.GetFileNameWithoutExtension(_executablePath); }}
+        public string ProcessName { get; private set; }
 
-        public bool IsExplorer { get { return ProcessName.ToLower() == "explorer"; } }
+        public bool IsExplorer { get; private set; }
 
         public bool IsUnknown { get; private set; }
 
