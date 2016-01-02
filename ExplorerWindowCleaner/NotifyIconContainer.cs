@@ -41,29 +41,21 @@ namespace ExplorerWindowCleaner
                 
                 _mainWindow.Dispatcher.Invoke(() =>
                 {
-                    try
+                    notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", args.WindowCount);
+                    toolStripMenuItemAutoClose.Text = _ewClient.AppConfig.IsAutoCloseUnused
+                        ? string.Format("Auto Close Unused expire:{0}",
+                            args.ExpireDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                        : "Auto Close Unused";
+                    if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
                     {
-                        notifyIcon.Text = string.Format("ExplorerWindowCleaner - {0} Windows", args.WindowCount);
-                        toolStripMenuItemAutoClose.Text = _ewClient.AppConfig.IsAutoCloseUnused
-                            ? string.Format("Auto Close Unused expire:{0}",
-                                args.ExpireDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
-                            : "Auto Close Unused";
-                        if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
-                        {
-                            notifyIcon.ShowBalloonTip(3000,
-                                string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),
-                                string.Format("{0}", string.Join("\n", args.CloseWindowTitles)), ToolTipIcon.Info);
-                        }
-                        _mainWindow.NowWindowCount = args.WindowCount;
-                        _mainWindow.MaxWindowCount = args.MaxWindowCount;
-                        _mainWindow.PinedCount = args.PinedCount;
-                        _mainWindow.TotalClosedWindow = args.TotalCloseWindowCount;
+                        notifyIcon.ShowBalloonTip(3000,
+                            string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),
+                            string.Format("{0}", string.Join("\n", args.CloseWindowTitles)), ToolTipIcon.Info);
                     }
-                    catch (Exception ex)
-                    {
-                        // 例外が発生したらすてる。次の更新でリカバリされる。
-                        _log.Error(ex, "after cleaned.");
-                    }
+                    _mainWindow.NowWindowCount = args.WindowCount;
+                    _mainWindow.MaxWindowCount = args.MaxWindowCount;
+                    _mainWindow.PinedCount = args.PinedCount;
+                    _mainWindow.TotalClosedWindow = args.TotalCloseWindowCount;
                 });
                 
                

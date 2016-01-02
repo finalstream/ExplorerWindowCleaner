@@ -229,6 +229,8 @@ namespace ExplorerWindowCleaner
             var item = (DataGridRow)((FrameworkElement)sender).Tag;
             var explorer = (Explorer)item.DataContext;
             _ewClient.SwitchPin(explorer);
+            var vs = this.FindResource("NowExplorersView") as CollectionViewSource;
+            vs.View.Refresh();
         }
 
         private void ClosedList_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -263,6 +265,8 @@ namespace ExplorerWindowCleaner
             var explorer = (Explorer)item.DataContext;
 
             explorer.SwitchFavorited();
+            var vs = this.FindResource("ClosedExplorersView") as CollectionViewSource;
+            vs.View.Refresh();
         }
 
         private void Version_OnClick(object sender, RoutedEventArgs e)

@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FINALSTRAM")]
 [assembly: AssemblyProduct("ExplorerWindowCleaner")]
-[assembly: AssemblyCopyright("Copyright © 2015 FINALSTREAM")]
+[assembly: AssemblyCopyright("Copyright © 2015-2016 FINALSTREAM")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

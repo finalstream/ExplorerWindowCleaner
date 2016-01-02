@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Annotations;
 using System.Windows.Data;
+using FinalstreamCommons.Extensions;
 using Newtonsoft.Json;
 using NLog;
 using SHDocVw;
@@ -279,19 +280,13 @@ namespace ExplorerWindowCleaner
 
         public void UpdateView()
         {
-            Explorers.Clear();
-            foreach (var aliveExplorer in _explorerDic.Values.OrderByDescending(x=>x.IsPined).ThenByDescending(x => x.LastUpdateDateTime))
-            {
-                if (!IsShowApplication && !aliveExplorer.IsExplorer) continue; // アプリ非表示のときはアプリは表示しない
-                Explorers.Add(aliveExplorer);
-            }
-
-            ClosedExplorers.Clear();
-            foreach (var closedExplorer in _closedExplorerDic.Values.OrderByDescending(x => x.IsFavorited).ThenByDescending(x=>x.LastUpdateDateTime))
-            {
-                if (!IsShowApplication && !closedExplorer.IsExplorer) continue; // アプリ非表示のときはアプリは表示しない
-                ClosedExplorers.Add(closedExplorer);
-            }
+            // アプリ表示時以外はアプリは表示しないようにする。
+            Explorers.DiffUpdate(
+                _explorerDic.Values.Where(x => IsShowApplication || x.IsExplorer).ToArray(),
+                new ExplorerEqualityComparer());
+            ClosedExplorers.DiffUpdate(
+                _closedExplorerDic.Values.Where(x => IsShowApplication || x.IsExplorer).ToArray(),
+                new ExplorerEqualityComparer());
         }
 
         public bool CloseExplorer(Explorer explorer)
@@ -354,5 +349,18 @@ namespace ExplorerWindowCleaner
         }
 
         
+    }
+
+    public class ExplorerEqualityComparer : IEqualityComparer<Explorer>
+    {
+        public bool Equals(Explorer x, Explorer y)
+        {
+            return x.LocationKey == y.LocationKey;
+        }
+
+        public int GetHashCode(Explorer obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 }

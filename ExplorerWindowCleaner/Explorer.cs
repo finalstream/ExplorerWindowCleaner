@@ -60,38 +60,109 @@ namespace ExplorerWindowCleaner
         [JsonIgnore]
         public string LastUpdate { get { return LastUpdateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); } }
         public DateTime RegistDateTime { get; private set; }
-        public DateTime LastUpdateDateTime { get; private set; }
+
+        #region LastUpdateDateTime変更通知プロパティ
+
+        private DateTime _LastUpdateDateTime;
+
+        public DateTime LastUpdateDateTime
+        {
+            get { return _LastUpdateDateTime; }
+            set
+            {
+                if (_LastUpdateDateTime == value) return;
+                _LastUpdateDateTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged("LastUpdate");
+            }
+        }
+
+        #endregion
+
         public int Handle { get; private set; }
-        public string LocationUrl { get; private set; }
+
+        #region LocationUrl変更通知プロパティ
+
+        private string _LocationUrl;
+
+        public string LocationUrl
+        {
+            get { return _LocationUrl; }
+            set
+            {
+                if (_LocationUrl == value) return;
+                _LocationUrl = value;
+                OnPropertyChanged();
+                OnPropertyChanged("LocationPath");
+            }
+        }
+
+        #endregion
+
         [JsonIgnore]
         public string LocationKey { get { return !IsSpecialFolder ? LocationUrl : LocationName; } }
-        public string LocationName { get; private set; }
+
+        #region LocationName変更通知プロパティ
+
+        private string _LocationName;
+
+        public string LocationName
+        {
+            get { return _LocationName; }
+            set
+            {
+                if (_LocationName == value) return;
+                _LocationName = value;
+                OnPropertyChanged();
+                OnPropertyChanged("LocationPath");
+            }
+        }
+
+        #endregion
         [JsonIgnore]
         public string LocationPath { get { return !IsSpecialFolder ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
+        
         [JsonIgnore]
         public InternetExplorer Instance { get; private set; }
         public bool IsExplorer { get; private set; }
-        
-        public bool IsPined { get; set; }
+
+        #region IsPined変更通知プロパティ
+
+        private bool _IsPined;
+
+        public bool IsPined
+        {
+            get { return _IsPined; }
+            set
+            {
+                if (_IsPined == value) return;
+                _IsPined = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         public bool IsFavorited { get; set; }
         [JsonIgnore]
         public bool IsSpecialFolder { get { return string.IsNullOrEmpty(LocationUrl); } }
         public int CloseCount { get; private set; }
 
-        public void Update(InternetExplorer ie)
+        public bool Update(InternetExplorer ie)
         {
             var newlocationkey = GetLocationKey(ie);
-            if (LocationKey == newlocationkey) return; // パスに変更がない場合は何もしない。
+            if (LocationKey == newlocationkey) return false; // パスに変更がない場合は何もしない。
             LocationUrl = ie.LocationURL;
             LocationName = ie.LocationName;
             LastUpdateDateTime = DateTime.Now;
+            return true;
         }
 
-        public void UpdateWithKeepPin(InternetExplorer ie)
+        public bool UpdateWithKeepPin(InternetExplorer ie)
         {
             Explorer pinExplorer = null;
             var newlocationkey = GetLocationKey(ie);
-            if (LocationKey == newlocationkey) return; // パスに変更がない場合は何もしない。
+            if (LocationKey == newlocationkey) return false; // パスに変更がない場合は何もしない。
             
             if (this.IsPined) pinExplorer = JsonConvert.DeserializeObject<Explorer>(JsonConvert.SerializeObject(this));
 
@@ -106,7 +177,7 @@ namespace ExplorerWindowCleaner
                 IsPined = false;
                 OnPinLocationChanged(pinExplorer);
             }
-            
+            return true;
         }
 
         private string GetLocationKey(InternetExplorer ie)

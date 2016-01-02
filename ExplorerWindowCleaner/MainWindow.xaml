@@ -4,6 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:explorerWindowCleaner="clr-namespace:ExplorerWindowCleaner"
         xmlns:converters="clr-namespace:ExplorerWindowCleaner.Converters"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         Title="Explorer Window Cleaner" Height="350" Width="600" Icon="icon.ico"
         GlowBrush="{DynamicResource AccentColorBrush}"
         ShowMaxRestoreButton="False"
@@ -46,6 +47,18 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <CollectionViewSource x:Key="NowExplorersView"  Source="{Binding NowExplorers}" >
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="IsPined" Direction="Descending" />
+                <componentModel:SortDescription PropertyName="LastUpdateDateTime" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="ClosedExplorersView"  Source="{Binding ClosedExplorers}" >
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="IsFavorited" Direction="Descending" />
+                <componentModel:SortDescription PropertyName="LastUpdateDateTime" Direction="Descending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
     </Controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -75,7 +88,7 @@
             <TextBlock  TextAlignment="Right" Style="{StaticResource LinkText}" Text="{Binding SwitchViewLabel}" Margin="5" Padding="10,0,0,0" MouseDown="ClosedList_OnMouseDown"></TextBlock>
         </DockPanel>
         <!-- NowWindows DataGrid -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding NowExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Source={StaticResource NowExplorersView}}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='true'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Add Favorite" Click="AddFavoriteMenuItem_OnClick">
@@ -115,7 +128,7 @@
                 <DataGridTemplateColumn Header="" Width="30" CanUserSort="False">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
-                            <Image Source="Resources/close.png" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Close_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}">
+                            <Image Source="Resources/close.png" Stretch="Uniform" Width="16" Height="16" MouseLeftButtonDown="Close_OnMouseLeftButtonDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}" Visibility="{Binding IsExplorer, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}">
                         </Image>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
@@ -124,7 +137,7 @@
         </DataGrid>
 
         <!-- ClosedWindows DataGrid -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding ClosedExplorers}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}" Sorting="DataGrid_OnSorting">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Source={StaticResource ClosedExplorersView}}" SelectedItem="{Binding CurrentExplorer}" AutoGenerateColumns="False" Visibility="{Binding IsShowClosed, Converter={StaticResource booleanToVisibilityConverter}, ConverterParameter='false'}" Sorting="DataGrid_OnSorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy Location" Click="CopyLocationMenuItem_OnClick">
