@@ -133,8 +133,16 @@ namespace ExplorerWindowCleaner
             {
 
                 if (ie.FullName == null) continue;
-
-                var handle = ie.HWND;
+                int handle = 0;
+                try
+                {
+                    handle = ie.HWND;
+                }
+                catch (COMException comex)
+                {
+                    // 謎のCOMExceptionが出る場合があるので出た場合はそのプロセスはスキップする。
+                    _log.Error(comex, "COM Error!! FullName:{0}", ie.FullName);
+                }
                 if (handle == 0) continue;
                 if (!_explorerDic.Keys.Contains(handle))
                 {
