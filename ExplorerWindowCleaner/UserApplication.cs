@@ -26,9 +26,19 @@ namespace ExplorerWindowCleaner
             }
             else
             {
-                _fileVersionInfo = FileVersionInfo.GetVersionInfo(_executablePath);
-                ProcessName = Path.GetFileNameWithoutExtension(_executablePath);
-                IsExplorer = ProcessName.ToLower() == "explorer";
+                try
+                {
+                    _fileVersionInfo = FileVersionInfo.GetVersionInfo(_executablePath);
+                    ProcessName = Path.GetFileNameWithoutExtension(_executablePath);
+                    IsExplorer = ProcessName.ToLower() == "explorer";
+                }
+                catch (FileNotFoundException)
+                {
+                    // GetVersionInfoで何故かFileNotFoundExceptionがスローされる場合があるので
+                    ProcessName = "";
+                    IsUnknown = true;
+                    IsExplorer = false;
+                }
             }
         }
 
