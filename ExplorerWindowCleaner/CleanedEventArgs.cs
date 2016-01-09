@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace ExplorerWindowCleaner
 {
@@ -12,13 +11,9 @@ namespace ExplorerWindowCleaner
         public int MaxWindowCount { get; private set; }
         public int PinedCount { get; private set; }
         public int TotalCloseWindowCount { get; private set; }
+        public bool IsUpdated { get; private set; }
 
-        public CleanedEventArgs(ICollection<string> closeWindowTitles, 
-            int windowCount, 
-            DateTime expireDateTime, 
-            int maxWindowCount, 
-            int pinedCount, 
-            int totalCloseWindowCount)
+        public CleanedEventArgs(ICollection<string> closeWindowTitles, int windowCount, DateTime expireDateTime, int maxWindowCount, int pinedCount, int totalCloseWindowCount, bool isUpdated)
         {
             CloseWindowTitles = closeWindowTitles;
             WindowCount = windowCount;
@@ -26,6 +21,7 @@ namespace ExplorerWindowCleaner
             MaxWindowCount = maxWindowCount;
             PinedCount = pinedCount;
             TotalCloseWindowCount = totalCloseWindowCount;
+            IsUpdated = isUpdated;
         }
     }
 }

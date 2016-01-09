@@ -6,9 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Annotations;
 using System.Windows.Data;
 using FinalstreamCommons.Extensions;
 using Newtonsoft.Json;
@@ -48,23 +45,22 @@ namespace ExplorerWindowCleaner
         public int PinedCount { get { return _explorerDic.Values.Count(x => x.IsPined); }}
         
 
-        #region WCleanedイベント
+        #region Cleanedイベント
 
         // Event object
         public event EventHandler<CleanedEventArgs> Cleaned;
 
-        protected virtual void OnCleaned(ICollection<string> closeWindowTitles)
+        protected virtual void OnCleaned(ICollection<string> closeWindowTitles, bool isUpdated)
         {
-            var handler = this.Cleaned;
+            var handler = Cleaned;
             if (handler != null)
             {
                 handler(this, new CleanedEventArgs(
-                    closeWindowTitles, WindowCount, _expireDateTime, _maxWindowCount, PinedCount, _totalCloseWindowCount));
+                    closeWindowTitles, WindowCount, _expireDateTime, _maxWindowCount, PinedCount, _totalCloseWindowCount, isUpdated));
             }
         }
 
         #endregion
-
 
         internal ExplorerCleaner(ExplorerWindowCleanerAppConfig appConfig)
         {
@@ -119,6 +115,7 @@ namespace ExplorerWindowCleaner
         /// <returns>クローズしたウインドウの名前リスト</returns>
         public void Clean()
         {
+            var isUpdated = false;
             var closeWindowTitles = new List<string>();
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
@@ -176,14 +173,16 @@ namespace ExplorerWindowCleaner
                     Explorer explorer;
                     if (_explorerDic.TryGetValue(handle, out explorer))
                     {
+                        bool updated;
                         if (_appConfig.IsKeepPin)
                         {
-                            explorer.UpdateWithKeepPin(ie);
+                            updated = explorer.UpdateWithKeepPin(ie);
                         }
                         else
                         {
-                            explorer.Update(ie);
+                            updated = explorer.Update(ie);
                         }
+                        if (updated) isUpdated = true;
                     }
                 }
         }
@@ -230,15 +229,16 @@ namespace ExplorerWindowCleaner
                 }
             }
 
-            // 表示更新
-            UpdateView();
+            // 表示用データ更新
+            var updatedView = UpdateView();
+            if (updatedView) isUpdated = true;
 
             Save();
 
             if (WindowCount > _maxWindowCount) _maxWindowCount = WindowCount;
             _totalCloseWindowCount += closeWindowTitles.Count;
 
-            OnCleaned(closeWindowTitles);
+            OnCleaned(closeWindowTitles, isUpdated);
         }
 
         private void RegistExplorer(Explorer explorer)
@@ -286,15 +286,16 @@ namespace ExplorerWindowCleaner
             SaveHistory();
         }
 
-        public void UpdateView()
+        public bool UpdateView()
         {
             // アプリ表示時以外はアプリは表示しないようにする。
-            Explorers.DiffUpdate(
+            var nowUpdated = Explorers.DiffUpdate(
                 _explorerDic.Values.Where(x => IsShowApplication || x.IsExplorer).ToArray(),
                 new ExplorerEqualityComparer());
-            ClosedExplorers.DiffUpdate(
+            var closeUpdated = ClosedExplorers.DiffUpdate(
                 _closedExplorerDic.Values.Where(x => IsShowApplication || x.IsExplorer).ToArray(),
                 new ExplorerEqualityComparer());
+            return nowUpdated || closeUpdated;
         }
 
         public bool CloseExplorer(Explorer explorer)

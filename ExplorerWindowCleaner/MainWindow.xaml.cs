@@ -342,5 +342,13 @@ namespace ExplorerWindowCleaner
 
             IsShowApplication = _ewClient.SwitchShowApplication();
         }
+
+        public void UpdateView()
+        {
+            var vs = this.FindResource("NowExplorersView") as CollectionViewSource;
+            vs.View.Refresh();
+            var cvs = this.FindResource("ClosedExplorersView") as CollectionViewSource;
+            cvs.View.Refresh();
+        }
     }
 }

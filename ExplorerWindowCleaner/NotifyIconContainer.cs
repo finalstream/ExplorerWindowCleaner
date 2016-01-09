@@ -56,6 +56,7 @@ namespace ExplorerWindowCleaner
                     _mainWindow.MaxWindowCount = args.MaxWindowCount;
                     _mainWindow.PinedCount = args.PinedCount;
                     _mainWindow.TotalClosedWindow = args.TotalCloseWindowCount;
+                    if (args.IsUpdated) _mainWindow.UpdateView();
                 });
                 
                
