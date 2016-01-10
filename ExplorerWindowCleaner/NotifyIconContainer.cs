@@ -34,7 +34,7 @@ namespace ExplorerWindowCleaner
             toolStripMenuItemExit.Click += toolStripMenuItemExit_Click;
             toolStripMenuItemAutoClose.Click += ToolStripMenuItemAutoCloseOnClick;
             toolStripMenuItemStartup.Click += ToolStripMenuItemStartupOnClick;
-            toolStripMenuItemAutoClose.Checked = Properties.Settings.Default.IsAutoCloseUnused;
+            toolStripMenuItemAutoClose.Checked = client.AppConfig.IsAutoCloseUnused;
 
             _ewClient.Cleaned += (sender, args) =>
             {
@@ -46,7 +46,7 @@ namespace ExplorerWindowCleaner
                         ? string.Format("Auto Close Unused expire:{0}",
                             args.ExpireDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                         : "Auto Close Unused";
-                    if (Properties.Settings.Default.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
+                    if (_ewClient.AppConfig.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
                     {
                         notifyIcon.ShowBalloonTip(3000,
                             string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),

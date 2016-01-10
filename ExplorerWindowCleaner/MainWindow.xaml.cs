@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using FinalstreamCommons.Extensions;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Newtonsoft.Json;
@@ -37,8 +38,18 @@ namespace ExplorerWindowCleaner
             {
                 args.Cancel = true;
                 this.Visibility = Visibility.Hidden;
+                _ewClient.AppConfig.WindowBounds = new Rect(this.Left, this.Top, this.Width, this.Height);
             };
+                    
 
+            if (!_ewClient.AppConfig.WindowBounds.IsAllZero())
+            {
+                var windowBounds = _ewClient.AppConfig.WindowBounds;
+                Top = windowBounds.Top;
+                Left = windowBounds.Left;
+                Width = windowBounds.Width;
+                Height = windowBounds.Height;
+            } 
             SwitchViewLabel = ClosedWindows;
         }
 

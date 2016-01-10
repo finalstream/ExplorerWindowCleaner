@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,7 +15,7 @@ using MahApps.Metro;
 
 namespace ExplorerWindowCleaner
 {
-    public class ExplorerWindowCleanerClient : AppClient
+    public class ExplorerWindowCleanerClient : AppClient<ExplorerWindowCleanerAppConfig>
     {
 
         private ActionExecuter<ExplorerWindowCleanerClientOperator> _actionExecuter;
@@ -36,18 +37,9 @@ namespace ExplorerWindowCleaner
 
         #endregion
 
-        private ExplorerWindowCleanerAppConfig _appConfig;
-        internal new ExplorerWindowCleanerAppConfig AppConfig
+        public override string GetConfigPath()
         {
-            get
-            {
-                return _appConfig;
-            }
-            private set
-            {
-                _appConfig = value;
-                base.AppConfig = value;
-            }
+            return Path.Combine(CurrentDirectory, "ExplorerWindowCleanerConfig.json");
         }
 
         public ExplorerWindowCleanerClient(Assembly executingAssembly) : base(executingAssembly)
@@ -62,8 +54,6 @@ namespace ExplorerWindowCleaner
         
         protected override void InitializeCore()
         {
-            _appConfig = new ExplorerWindowCleanerAppConfig(ExecutingAssemblyInfo.FileVersion, Settings.Default);
-
             // get the theme from the current application
             var theme = ThemeManager.DetectAppStyle(Application.Current);
 
@@ -76,47 +66,13 @@ namespace ExplorerWindowCleaner
             _explorerCleaner.Cleaned += (sender, args) => OnCleaned(args);
             _actionExecuter = new ActionExecuter<ExplorerWindowCleanerClientOperator>(new ExplorerWindowCleanerClientOperator(this, _explorerCleaner));
 
-            ResetBackgroundWorker(Settings.Default.Interval, new BackgroundAction[] { new CleanerAction(this) });
+            ResetBackgroundWorker(AppConfig.Interval, new BackgroundAction[] { new CleanerAction(this) });
         }
 
         protected override void FinalizeCore()
         {
             _explorerCleaner.SaveExit();
         }
-
-
-        #region Dispose
-
-        // Flag: Has Dispose already been called?
-        private bool disposed = false;
-
-        // Public implementation of Dispose pattern callable by consumers.
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        // Protected implementation of Dispose pattern.
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                // Free any other managed objects here.
-                //
-                base.Dispose();
-                
-            }
-
-            // Free any unmanaged objects here.
-            //
-            disposed = true;
-        }
-
-        #endregion
 
         public void SwitchPin(Explorer explorer)
         {

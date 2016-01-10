@@ -5,47 +5,43 @@ using Firk.Core;
 
 namespace ExplorerWindowCleaner
 {
-    internal class ExplorerWindowCleanerAppConfig : IAppConfig
+    public class ExplorerWindowCleanerAppConfig : AppConfig
     {
 
-        private string _appVersion;
-
-        public ExplorerWindowCleanerAppConfig(string appVersion, Settings settings)
+        public ExplorerWindowCleanerAppConfig()
         {
-            _appVersion = appVersion;
-            IsAutoCloseUnused = settings.IsAutoCloseUnused;
-            AccentColor = settings.AccentColor;
-            AppTheme = settings.AppTheme;
-            IsKeepPin = settings.IsKeepPin;
-            ExpireInterval = settings.ExpireInterval;
-            ExportLimitNum = settings.ExportLimitNum;
+            Interval = TimeSpan.FromSeconds(10);
+            IsAutoCloseUnused = true;
+            AccentColor = "Cobalt";
+            AppTheme = "BaseLight";
+            IsKeepPin = true;
+            ExpireInterval = TimeSpan.FromHours(5);
+            ExportLimitNum = 30;
+            IsNotifyCloseWindow = true;
         }
 
-        public string AppVersion
-        {
-            get { return _appVersion; }
-        }
-
-        public int SchemaVersion
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public Rect WindowBounds
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
+        public TimeSpan Interval { get; set; }
         public bool IsAutoCloseUnused { get; set; }
         public string AccentColor { get; set; }
         public string AppTheme { get; set; }
         public bool IsKeepPin { get; set; }
         public TimeSpan ExpireInterval { get; set; }
         public int ExportLimitNum { get; set; }
+        public bool IsNotifyCloseWindow { get; set; }
+        
 
-        public void UpdateSchemaVersion(int version)
+        protected override void UpdateCore<T>(T config)
         {
-            throw new System.NotImplementedException();
+            var appConfig = config as ExplorerWindowCleanerAppConfig;
+            if (appConfig == null) return;
+            Interval = appConfig.Interval;
+            IsAutoCloseUnused = appConfig.IsAutoCloseUnused;
+            AccentColor = appConfig.AccentColor;
+            AppTheme = appConfig.AppTheme;
+            IsKeepPin = appConfig.IsKeepPin;
+            ExpireInterval = appConfig.ExpireInterval;
+            ExportLimitNum = appConfig.ExportLimitNum;
+            IsNotifyCloseWindow = appConfig.IsNotifyCloseWindow;
         }
     }
 }
