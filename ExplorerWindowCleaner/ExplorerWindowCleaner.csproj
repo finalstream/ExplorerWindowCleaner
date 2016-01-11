@@ -43,8 +43,8 @@
       <HintPath>..\packages\FinalstreamCommons.Core.0.1.8.0\lib\net45\FinalstreamCommons.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Firk.Core, Version=0.2.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Firk.Core.0.2.7.0\lib\net45\Firk.Core.dll</HintPath>
+    <Reference Include="Firk.Core, Version=0.2.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Firk.Core.0.2.10.0\lib\net45\Firk.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro, Version=1.1.2.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">

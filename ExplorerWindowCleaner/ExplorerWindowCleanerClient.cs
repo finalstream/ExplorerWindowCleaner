@@ -65,7 +65,7 @@ namespace ExplorerWindowCleaner
             _explorerCleaner = new ExplorerCleaner(AppConfig);
             _explorerCleaner.Cleaned += (sender, args) => OnCleaned(args);
             _actionExecuter = new ActionExecuter<ExplorerWindowCleanerClientOperator>(new ExplorerWindowCleanerClientOperator(this, _explorerCleaner));
-
+            DisposableCollection.Add(_actionExecuter);
             ResetBackgroundWorker(AppConfig.Interval, new BackgroundAction[] { new CleanerAction(this) });
         }
 
