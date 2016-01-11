@@ -34,7 +34,7 @@ Require .NET Framework 4.5
 ![image](https://cloud.githubusercontent.com/assets/3516444/10712006/cfd43dd6-7ac7-11e5-9084-d44c6a1656d7.png)
 
 ## 設定
-ExplorerWindowCleaner.exe.configをテキストエディタで編集することで設定を変更できます。  
+ExplorerWindowCleanerConfig.jsonをテキストエディタで編集することで設定を変更できます。  
 
 * Interval  
 　監視間隔です。デフォルトは10secです。
