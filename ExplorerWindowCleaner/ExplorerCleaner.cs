@@ -122,7 +122,7 @@ namespace ExplorerWindowCleaner
 
             _log.Debug("ShellWindows[{0}]", _shellWindows.Count);
 
-            var userApps = Process.GetProcesses().Where(x => x.MainWindowHandle != IntPtr.Zero).Select(x=> new UserApplication(x)).Where(x=> !x.IsExplorer && !x.IsUnknown);
+            var userApps = IsShowApplication? Process.GetProcesses().Where(x => x.MainWindowHandle != IntPtr.Zero).Select(x=> new UserApplication(x)).Where(x=> !x.IsExplorer && !x.IsUnknown): Enumerable.Empty<UserApplication>();
 
             var ies = _shellWindows.Cast<InternetExplorer>().Concat(userApps);
 
@@ -137,8 +137,8 @@ namespace ExplorerWindowCleaner
                 }
                 catch (COMException comex)
                 {
-                    // 謎のCOMExceptionが出る場合があるので出た場合はそのプロセスはスキップする。
-                    _log.Error(comex, "COM Error!! FullName:{0}", ie.FullName);
+                    // IEのコンポーネントを使用しているアプリを拾った場合、COMExceptionが出る場合があるので出た場合はそのプロセスはスキップする。
+                    _log.Debug(comex, "COM Error!! FullName:{0}", ie.FullName);
                 }
                 if (handle == 0) continue;
                 if (!_explorerDic.Keys.Contains(handle))
