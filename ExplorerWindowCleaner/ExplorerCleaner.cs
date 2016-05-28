@@ -16,51 +16,46 @@ namespace ExplorerWindowCleaner
 {
     public class ExplorerCleaner
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger();
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetForegroundWindow();
-
         private const string NowFileName = "now.json";
         private const string HistoryFileName = "history.json";
+        private readonly ExplorerWindowCleanerAppConfig _appConfig;
         private readonly Dictionary<int, Explorer> _explorerDic;
-        /// <summary>
-        /// 復元用エクスプローラディクショナリ（前回のNow）
-        /// </summary>
-        private Dictionary<int, Explorer> _restoreExplorerDic;
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly HashSet<string> _pinedRestoreHashSet;
+        private readonly ShellWindows _shellWindows;
+        private readonly SpecialFolderManager _specialFolderManager;
         private ConcurrentDictionary<string, Explorer> _closedExplorerDic;
-        private HashSet<string> _pinedRestoreHashSet; 
-        private ShellWindows _shellWindows;
-        private SpecialFolderManager _specialFolderManager;
-
-        private ExplorerWindowCleanerAppConfig _appConfig;
-        private string _lastSerializeNow;
-        private string _lastSerializeHistory;
         private DateTime _expireDateTime;
+        private string _lastSerializeHistory;
+        private string _lastSerializeNow;
         private int _maxWindowCount;
-        private int _totalCloseWindowCount;
 
-        public bool IsShowApplication { get; set; }
-        public int WindowCount { get { return _explorerDic.Values.Count(x => x.IsExplorer); } }
-        public int PinedCount { get { return _explorerDic.Values.Count(x => x.IsPined); }}
-        
-
-        #region Cleanedイベント
-
-        // Event object
-        public event EventHandler<CleanedEventArgs> Cleaned;
-
-        protected virtual void OnCleaned(ICollection<string> closeWindowTitles, bool isUpdated)
+        public enum ExplorerCloseReason
         {
-            var handler = Cleaned;
-            if (handler != null)
-            {
-                handler(this, new CleanedEventArgs(
-                    closeWindowTitles, WindowCount, _expireDateTime, _maxWindowCount, PinedCount, _totalCloseWindowCount, isUpdated));
-            }
+            /// <summary>
+            /// すでに終了済み
+            /// </summary>
+            Terminated,
+            /// <summary>
+            /// 重複
+            /// </summary>
+            Duplication,
+            /// <summary>
+            /// 期限切れ
+            /// </summary>
+            Expiration,
+            /// <summary>
+            /// ユーザ操作
+            /// </summary>
+            UserOperation
         }
 
-        #endregion
+        /// <summary>
+        ///     復元用エクスプローラディクショナリ（前回のNow）
+        /// </summary>
+        private Dictionary<int, Explorer> _restoreExplorerDic;
+
+        private int _totalCloseWindowCount;
 
         internal ExplorerCleaner(ExplorerWindowCleanerAppConfig appConfig)
         {
@@ -74,17 +69,33 @@ namespace ExplorerWindowCleaner
             BindingOperations.EnableCollectionSynchronization(Explorers, new object());
             BindingOperations.EnableCollectionSynchronization(ClosedExplorers, new object());
             _shellWindows = new ShellWindowsClass();
-            
+
             _specialFolderManager = new SpecialFolderManager();
             Restore();
-            
         }
+
+        public bool IsShowApplication { get; set; }
+
+        public int WindowCount
+        {
+            get { return _explorerDic.Values.Count(x => x.IsExplorer); }
+        }
+
+        public int PinedCount
+        {
+            get { return _explorerDic.Values.Count(x => x.IsPined); }
+        }
+
+        public ObservableCollection<Explorer> Explorers { get; }
+        public ObservableCollection<Explorer> ClosedExplorers { get; }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
         private void Restore()
         {
             LoadNow();
             LoadHistory();
-
         }
 
         private void LoadNow()
@@ -102,35 +113,37 @@ namespace ExplorerWindowCleaner
             if (!File.Exists(HistoryFileName)) return;
             var histories = JsonConvert.DeserializeObject<Explorer[]>(File.ReadAllText(HistoryFileName));
             if (histories == null) return;
-            _closedExplorerDic = new ConcurrentDictionary<string, Explorer>(histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x));
+            _closedExplorerDic =
+                new ConcurrentDictionary<string, Explorer>(
+                    histories.Where(x => x.CloseCount > 0).ToDictionary(x => x.LocationKey, x => x));
         }
 
-        public ObservableCollection<Explorer> Explorers { get; private set; }
-
-        public ObservableCollection<Explorer> ClosedExplorers { get; private set; }
-
         /// <summary>
-        /// エクスプローラのウインドウをクリーンします。
+        ///     エクスプローラのウインドウをクリーンします。
         /// </summary>
         /// <returns>クローズしたウインドウの名前リスト</returns>
         public void Clean()
         {
             var isUpdated = false;
-            var closeWindowTitles = new List<string>();
+            var cleanedInfos = new List<ExplorerCleanedInfo>();
 
             var closedExplorerHandleList = _explorerDic.Keys.ToList();
 
             _log.Debug("ShellWindows[{0}]", _shellWindows.Count);
 
-            var userApps = IsShowApplication? Process.GetProcesses().Where(x => x.MainWindowHandle != IntPtr.Zero).Select(x=> new UserApplication(x)).Where(x=> !x.IsExplorer && !x.IsUnknown): Enumerable.Empty<UserApplication>();
+            var userApps = IsShowApplication
+                ? Process.GetProcesses()
+                    .Where(x => x.MainWindowHandle != IntPtr.Zero)
+                    .Select(x => new UserApplication(x))
+                    .Where(x => !x.IsExplorer && !x.IsUnknown)
+                : Enumerable.Empty<UserApplication>();
 
             var ies = _shellWindows.Cast<InternetExplorer>().Concat(userApps);
 
-            foreach (InternetExplorer ie in ies)
+            foreach (var ie in ies)
             {
-
                 if (ie.FullName == null) continue;
-                int handle = 0;
+                var handle = 0;
                 try
                 {
                     handle = ie.HWND;
@@ -163,7 +176,6 @@ namespace ExplorerWindowCleaner
                     }
 
                     RegistExplorer(explorer);
-                        
                 }
                 else
                 {
@@ -185,7 +197,7 @@ namespace ExplorerWindowCleaner
                         if (updated) isUpdated = true;
                     }
                 }
-        }
+            }
 
             // すでに終了されたものがあればディクショナリから削除
             foreach (var closedHandle in closedExplorerHandleList)
@@ -193,25 +205,30 @@ namespace ExplorerWindowCleaner
                 Explorer explorer;
                 if (_explorerDic.TryGetValue(closedHandle, out explorer))
                 {
-                    CloseExplorer(explorer);
+                    CloseExplorer(explorer, ExplorerCloseReason.Terminated);
                     _explorerDic.Remove(closedHandle);
                 }
-                
             }
 
-            var duplicateExplorers = _explorerDic.Where(x=>x.Value.IsExplorer)
+            var duplicateExplorers = _explorerDic.Where(x => x.Value.IsExplorer)
                 .GroupBy(g => g.Value.LocationKey)
                 .Select(g => new {Explorer = g, Count = g.Count()})
-                .Where(x => x.Count > 1).ToArray();　// Count > 1はいらないけど、旧バージョンからの互換のためにしばらく残す
+                .Where(x => x.Count > 1).ToArray(); // Count > 1はいらないけど、旧バージョンからの互換のためにしばらく残す
 
             // 同じパスのがあれば一番新しいもの以外は終了させる
             foreach (var duplicateExplorer in duplicateExplorers)
             {
                 var closeTargets = duplicateExplorer.Explorer
-                    .Where(x => x.Value.LastUpdateDateTime != duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime)).Select(x=>x.Value).ToArray();
+                    .Where(
+                        x =>
+                            x.Value.LastUpdateDateTime !=
+                            duplicateExplorer.Explorer.Max(m => m.Value.LastUpdateDateTime))
+                    .Select(x => x.Value)
+                    .ToArray();
                 foreach (var closeTarget in closeTargets)
                 {
-                    if (CloseExplorer(closeTarget)) closeWindowTitles.Add(closeTarget.LocationName);
+                    var closeReason = ExplorerCloseReason.Duplication;
+                    if (CloseExplorer(closeTarget, closeReason)) cleanedInfos.Add(new ExplorerCleanedInfo(closeTarget.LocationName, closeReason));
                 }
             }
 
@@ -225,7 +242,8 @@ namespace ExplorerWindowCleaner
                 foreach (var expireExplorer in explorers.Where(x => x.LastUpdateDateTime < _expireDateTime))
                 {
                     _log.Debug("Expire Explorer {0}", expireExplorer);
-                    if (CloseExplorer(expireExplorer)) closeWindowTitles.Add(expireExplorer.LocationName);
+                    var closeReason = ExplorerCloseReason.Expiration;
+                    if (CloseExplorer(expireExplorer, closeReason)) cleanedInfos.Add(new ExplorerCleanedInfo(expireExplorer.LocationName, closeReason));
                 }
             }
 
@@ -236,14 +254,15 @@ namespace ExplorerWindowCleaner
             Save();
 
             if (WindowCount > _maxWindowCount) _maxWindowCount = WindowCount;
-            _totalCloseWindowCount += closeWindowTitles.Count;
+            _totalCloseWindowCount += cleanedInfos.Count;
 
-            OnCleaned(closeWindowTitles, isUpdated);
+            OnCleaned(cleanedInfos, isUpdated);
         }
 
         private void RegistExplorer(Explorer explorer)
         {
-            if (_restoreExplorerDic.ContainsKey(explorer.Handle)) explorer.Restore(_restoreExplorerDic[explorer.Handle]);
+            if (_restoreExplorerDic.ContainsKey(explorer.Handle))
+                explorer.Restore(_restoreExplorerDic[explorer.Handle]);
             _log.Debug("Regist Explorer : {0}", explorer);
             _explorerDic.Add(explorer.Handle, explorer);
         }
@@ -266,7 +285,7 @@ namespace ExplorerWindowCleaner
         {
             var histories =
                 _closedExplorerDic.Values.ToArray()
-                    .Where(x=> x.IsFavorited || x.IsExplorer) // お気に入りでないアプリは保存しない
+                    .Where(x => x.IsFavorited || x.IsExplorer) // お気に入りでないアプリは保存しない
                     .OrderByDescending(x => x.IsFavorited)
                     .ThenByDescending(x => x.LastUpdateDateTime).Take(_appConfig.ExportLimitNum);
             var historySerialized = JsonConvert.SerializeObject(histories, Formatting.Indented);
@@ -298,10 +317,11 @@ namespace ExplorerWindowCleaner
             return nowUpdated || closeUpdated;
         }
 
-        public bool CloseExplorer(Explorer explorer)
+        public bool CloseExplorer(Explorer explorer, ExplorerCloseReason closeReason)
         {
             if (explorer.IsPined) return false; // ピン留めの場合閉じない。
             if (GetForegroundWindow() == (IntPtr) explorer.Handle) return false; // アクティブな場合閉じない。
+            if (closeReason == ExplorerCloseReason.Expiration && _closedExplorerDic.Values.Where(x => x.IsFavorited).Select(x => x.LocationUrl).Contains(explorer.LocationUrl)) return false; // 期限切れで閉じるときはお気に入りのパスは閉じない。
             var handle = explorer.Exit();
             _explorerDic.Remove(handle);
             Explorers.Remove(explorer);
@@ -323,7 +343,6 @@ namespace ExplorerWindowCleaner
                     oldExplorer.UpdateClosedInfo(explorer);
                     return oldExplorer;
                 });
-
         }
 
         public void RemoveClosedDictionary(Explorer explorer)
@@ -335,7 +354,9 @@ namespace ExplorerWindowCleaner
 
         public void OpenExplorer(Explorer explorer, bool isMinimized = false)
         {
-            var path = !explorer.IsSpecialFolder? explorer.LocationPath : _specialFolderManager.ConvertSpecialFolder(explorer.LocationName);
+            var path = !explorer.IsSpecialFolder
+                ? explorer.LocationPath
+                : _specialFolderManager.ConvertSpecialFolder(explorer.LocationName);
             OpenExplorer(path, isMinimized);
         }
 
@@ -343,7 +364,7 @@ namespace ExplorerWindowCleaner
         {
             var psi = new ProcessStartInfo("EXPLORER.EXE", string.Format("/n,\"{0}\"", path));
             if (isMinimized) psi.WindowStyle = ProcessWindowStyle.Minimized;
-            _log.Debug("{0} {1} {2}", (object)psi.FileName, (object)psi.Arguments, (object)psi.WindowStyle);
+            _log.Debug("{0} {1} {2}", (object) psi.FileName, (object) psi.Arguments, (object) psi.WindowStyle);
             Process.Start(psi);
         }
 
@@ -357,7 +378,23 @@ namespace ExplorerWindowCleaner
             }
         }
 
-        
+        #region Cleanedイベント
+
+        // Event object
+        public event EventHandler<CleanedEventArgs> Cleaned;
+
+        protected virtual void OnCleaned(ICollection<ExplorerCleanedInfo> closeInfos, bool isUpdated)
+        {
+            var handler = Cleaned;
+            if (handler != null)
+            {
+                handler(this, new CleanedEventArgs(
+                    closeInfos, WindowCount, _expireDateTime, _maxWindowCount, PinedCount, _totalCloseWindowCount,
+                    isUpdated));
+            }
+        }
+
+        #endregion
     }
 
     public class ExplorerEqualityComparer : IEqualityComparer<Explorer>

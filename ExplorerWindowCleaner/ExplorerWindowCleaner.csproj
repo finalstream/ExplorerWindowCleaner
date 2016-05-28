@@ -108,6 +108,7 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\IsPinedConverter.cs" />
     <Compile Include="Converters\IsFavoritedConverter.cs" />
+    <Compile Include="ExplorerCleanedInfo.cs" />
     <Compile Include="ExplorerWindowCleanerAppConfig.cs" />
     <Compile Include="ExplorerWindowCleanerClient.cs" />
     <Compile Include="ExplorerWindowCleanerClientOperator.cs" />

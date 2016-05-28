@@ -46,11 +46,11 @@ namespace ExplorerWindowCleaner
                         ? string.Format("Auto Close Unused expire:{0}",
                             args.ExpireDateTime.ToString("yyyy-MM-dd HH:mm:ss"))
                         : "Auto Close Unused";
-                    if (_ewClient.AppConfig.IsNotifyCloseWindow && args.CloseWindowTitles.Count > 0)
+                    if (_ewClient.AppConfig.IsNotifyCloseWindow && args.CloseInfos.Count > 0)
                     {
                         notifyIcon.ShowBalloonTip(3000,
-                            string.Format("{0} Windows Closed.", args.CloseWindowTitles.Count),
-                            string.Format("{0}", string.Join("\n", args.CloseWindowTitles)), ToolTipIcon.Info);
+                            string.Format("{0} Windows Closed.", args.CloseInfos.Count),
+                            string.Format("{0}", string.Join("\n", args.CloseInfos)), ToolTipIcon.Info);
                     }
                     _mainWindow.NowWindowCount = args.WindowCount;
                     _mainWindow.MaxWindowCount = args.MaxWindowCount;

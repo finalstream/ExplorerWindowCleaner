@@ -14,7 +14,7 @@ namespace ExplorerWindowCleaner.Actions
 
         public void Invoke(ExplorerWindowCleanerClientOperator _)
         {
-            _.ExplorerCleaner.CloseExplorer(_explorer);
+            _.ExplorerCleaner.CloseExplorer(_explorer, ExplorerCleaner.ExplorerCloseReason.UserOperation);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace ExplorerWindowCleaner
 {
     public class CleanedEventArgs : EventArgs
     {
-        public ICollection<string> CloseWindowTitles { get; private set; }
+        public ICollection<ExplorerCleanedInfo> CloseInfos { get; private set; }
         public int WindowCount { get; private set; }
         public DateTime ExpireDateTime { get; private set; }
         public int MaxWindowCount { get; private set; }
@@ -13,9 +13,9 @@ namespace ExplorerWindowCleaner
         public int TotalCloseWindowCount { get; private set; }
         public bool IsUpdated { get; private set; }
 
-        public CleanedEventArgs(ICollection<string> closeWindowTitles, int windowCount, DateTime expireDateTime, int maxWindowCount, int pinedCount, int totalCloseWindowCount, bool isUpdated)
+        public CleanedEventArgs(ICollection<ExplorerCleanedInfo> closeInfos, int windowCount, DateTime expireDateTime, int maxWindowCount, int pinedCount, int totalCloseWindowCount, bool isUpdated)
         {
-            CloseWindowTitles = closeWindowTitles;
+            CloseInfos = closeInfos;
             WindowCount = windowCount;
             ExpireDateTime = expireDateTime;
             MaxWindowCount = maxWindowCount;
