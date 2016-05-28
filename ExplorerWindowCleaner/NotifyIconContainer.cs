@@ -50,7 +50,7 @@ namespace ExplorerWindowCleaner
                     {
                         notifyIcon.ShowBalloonTip(3000,
                             string.Format("{0} Windows Closed.", args.CloseInfos.Count),
-                            string.Format("{0}", string.Join("\n", args.CloseInfos)), ToolTipIcon.Info);
+                            string.Format("{0}", string.Join("\n", args.CloseInfos.Select(x => string.Format("{0} [{1}]", x.WindowTitle, x.CloseReason.ToString())))), ToolTipIcon.Info);
                     }
                     _mainWindow.NowWindowCount = args.WindowCount;
                     _mainWindow.MaxWindowCount = args.MaxWindowCount;
