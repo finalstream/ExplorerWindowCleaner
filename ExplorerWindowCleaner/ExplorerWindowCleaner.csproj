@@ -25,6 +25,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -39,12 +41,12 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FinalstreamCommons.Core, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FinalstreamCommons.Core.0.1.8.0\lib\net45\FinalstreamCommons.Core.dll</HintPath>
+    <Reference Include="FinalstreamCommons.Core, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FinalstreamCommons.Core.0.1.14\lib\net45\FinalstreamCommons.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Firk.Core, Version=0.2.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Firk.Core.0.2.10.0\lib\net45\Firk.Core.dll</HintPath>
+    <Reference Include="Firk.Core, Version=0.2.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Firk.Core.0.2.11.0\lib\net45\Firk.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro, Version=1.1.2.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
@@ -105,6 +107,7 @@
     <Compile Include="Actions\AddFavoriteAction.cs" />
     <Compile Include="AppUtils.cs" />
     <Compile Include="Actions\CloseExplorerAction.cs" />
+    <Compile Include="ClipboardHistoryItem.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\IsPinedConverter.cs" />
     <Compile Include="Converters\IsFavoritedConverter.cs" />
