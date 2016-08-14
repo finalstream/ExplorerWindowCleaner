@@ -11,12 +11,14 @@ using FinalstreamCommons.Windows;
 using Firk.Core;
 using Firk.Core.Actions;
 using MahApps.Metro;
+using Newtonsoft.Json;
 using Application = System.Windows.Application;
 
 namespace ExplorerWindowCleaner
 {
     public class ExplorerWindowCleanerClient : AppClient<ExplorerWindowCleanerAppConfig>
     {
+        public const string ClipboardFileName = "clipboard.json";
         private ActionExecuter<ExplorerWindowCleanerClientOperator> _actionExecuter;
         private Queue<ClipboardHistoryItem> _clipboardItemQueue;
         private ClipboardMonitor _clipboardMonitor;
@@ -62,6 +64,8 @@ namespace ExplorerWindowCleaner
             ResetBackgroundWorker(AppConfig.Interval, new BackgroundAction[] {new CleanerAction(this)});
 
             _clipboardItemQueue = new Queue<ClipboardHistoryItem>();
+            RestoreClipboardHistories();
+
             _clipboardMonitor = new ClipboardMonitor();
             _clipboardMonitor.ClipboardChanged += (sender, args) =>
             {
@@ -119,9 +123,24 @@ namespace ExplorerWindowCleaner
             };
         }
 
+        private void RestoreClipboardHistories()
+        {
+            if (!File.Exists(ClipboardFileName)) return;
+            var clipboardHistories = JsonConvert.DeserializeObject<string[]>(File.ReadAllText(ClipboardFileName));
+            if (clipboardHistories == null) return;
+            _clipboardItemQueue = new Queue<ClipboardHistoryItem>(clipboardHistories.Select(x=>new ClipboardHistoryItem(x)));
+        }
+
         protected override void FinalizeCore()
         {
+            SaveClipboardHistories();
             _explorerCleaner.SaveExit();
+        }
+
+        private void SaveClipboardHistories()
+        {
+            var clipboardSerialized = JsonConvert.SerializeObject(_clipboardItemQueue.Select(x=>x.GetText()), Formatting.Indented);
+            File.WriteAllText(ClipboardFileName, clipboardSerialized);
         }
 
         public void SwitchPin(Explorer explorer)

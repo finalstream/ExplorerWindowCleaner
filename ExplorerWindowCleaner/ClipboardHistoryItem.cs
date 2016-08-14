@@ -11,6 +11,11 @@ namespace ExplorerWindowCleaner
             _textData = GetText(dataObject);
         }
 
+        public ClipboardHistoryItem(string text)
+        {
+            _textData = text;
+        }
+
         public override string ToString()
         {
             return _textData.Length <= 100 ? _textData : _textData.Substring(0, 100) + " ...";
