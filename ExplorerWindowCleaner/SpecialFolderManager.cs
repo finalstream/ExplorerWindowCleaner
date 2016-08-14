@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExplorerWindowCleaner
 {
@@ -64,6 +59,9 @@ namespace ExplorerWindowCleaner
             return "";
         }
 
-
+        public bool IsMatchSpecialFolder(string name)
+        {
+            return _convDic[_localeName].ContainsKey(name);
+        }
     }
 }

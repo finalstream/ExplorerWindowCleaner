@@ -117,6 +117,7 @@
     <Compile Include="ExplorerWindowCleanerClientOperator.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Actions\RemoveExplorerAction.cs" />
+    <Compile Include="ShortcutItem.cs" />
     <Compile Include="SpecialFolderManager.cs" />
     <Compile Include="Actions\SwitchPinAction.cs" />
     <Compile Include="UserApplication.cs" />
@@ -156,6 +157,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="shortcut.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Resource Include="Resources\close.png" />
     <Resource Include="Resources\open.png" />
     <EmbeddedResource Include="NotifyIconContainer.resx">

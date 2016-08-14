@@ -20,6 +20,7 @@ namespace ExplorerWindowCleaner
     public class ExplorerWindowCleanerClient : AppClient<ExplorerWindowCleanerAppConfig>
     {
         public const string ClipboardFileName = "clipboard.json";
+        public const string ShortcutFileName = "shortcut.json";
         private ActionExecuter<ExplorerWindowCleanerClientOperator> _actionExecuter;
         private Queue<ClipboardHistoryItem> _clipboardItemQueue;
         private ClipboardMonitor _clipboardMonitor;
@@ -27,6 +28,7 @@ namespace ExplorerWindowCleaner
         private ContextMenuStrip _contextMenuShortcuts;
         private ExplorerCleaner _explorerCleaner;
         private GlobalMouseHook _globalMouseHook;
+        private ShortcutItem[] _shortcuts;
 
         public ExplorerWindowCleanerClient(Assembly executingAssembly) : base(executingAssembly)
         {
@@ -67,7 +69,6 @@ namespace ExplorerWindowCleaner
 
             if (AppConfig.IsMouseHook)
             {
-                _clipboardItemQueue = new Queue<ClipboardHistoryItem>();
                 RestoreClipboardHistories();
 
                 MonitoringClipboard();
@@ -102,6 +103,7 @@ namespace ExplorerWindowCleaner
 
         private void CreateShortcutContextMenu()
         {
+            RestoreShortcut();
             _contextMenuShortcuts = new ContextMenuStrip();
             _contextMenuShortcuts.Opening += (sender, args) =>
             {
@@ -116,8 +118,18 @@ namespace ExplorerWindowCleaner
                 {
                     var item = new ToolStripMenuItem(closedExplorer.LocationPath);
                     item.Image = closedExplorer.IsFavorited ? Resources.favorite : null;
-                    item.Click += (o, eventArgs) => _explorerCleaner.OpenExplorer(closedExplorer.LocationPath);
+                    item.Click += (o, eventArgs) => _explorerCleaner.OpenExplorer(closedExplorer);
                     _contextMenuShortcuts.Items.Add(item);
+                }
+
+                if (_shortcuts.Length > 0)
+                {
+                    _contextMenuShortcuts.Items.Add(new ToolStripSeparator());
+                    foreach (var shortcutItem in _shortcuts)
+                    {
+                        _contextMenuShortcuts.Items.Add(shortcutItem.Name, null,
+                            (o, eventArgs) => shortcutItem.Exec());
+                    }
                 }
             };
             _contextMenuShortcuts.Closing += (sender, args) =>
@@ -173,16 +185,27 @@ namespace ExplorerWindowCleaner
                     && !_clipboardItemQueue.Select(x => x.GetText()).Contains(clipboardItem.GetText()))
                     _clipboardItemQueue.Enqueue(clipboardItem);
                 if (_clipboardItemQueue.Count == 11) _clipboardItemQueue.Dequeue();
+                SaveClipboardHistories();
             };
         }
 
         private void RestoreClipboardHistories()
         {
+            _clipboardItemQueue = new Queue<ClipboardHistoryItem>();
             if (!File.Exists(ClipboardFileName)) return;
             var clipboardHistories = JsonConvert.DeserializeObject<string[]>(File.ReadAllText(ClipboardFileName));
             if (clipboardHistories == null) return;
             _clipboardItemQueue =
                 new Queue<ClipboardHistoryItem>(clipboardHistories.Select(x => new ClipboardHistoryItem(x)));
+        }
+
+        private void RestoreShortcut()
+        {
+            _shortcuts = new ShortcutItem[] {};
+            if (!File.Exists(ShortcutFileName)) return;
+            var shortcuts = JsonConvert.DeserializeObject<dynamic[]>(File.ReadAllText(ShortcutFileName));
+            if (shortcuts == null) return;
+            _shortcuts = shortcuts.Select(x=> new ShortcutItem(x.name.ToString(), x.value.ToString())).ToArray();
         }
 
         protected override void FinalizeCore()

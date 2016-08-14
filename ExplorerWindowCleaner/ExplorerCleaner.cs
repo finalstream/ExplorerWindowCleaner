@@ -360,6 +360,14 @@ namespace ExplorerWindowCleaner
             OpenExplorer(path, isMinimized);
         }
 
+        public void OpenExplorer(ShortcutItem shortcut, bool isMinimized = false)
+        {
+            var path = !shortcut.IsSpecialFolder
+                ? shortcut.Value
+                : _specialFolderManager.ConvertSpecialFolder(shortcut.Value);
+            OpenExplorer(path, isMinimized);
+        }
+
         public void OpenExplorer(string path, bool isMinimized = false)
         {
             var psi = new ProcessStartInfo("EXPLORER.EXE", string.Format("/n,\"{0}\"", path));
