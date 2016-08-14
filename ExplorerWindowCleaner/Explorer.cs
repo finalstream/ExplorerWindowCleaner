@@ -85,6 +85,9 @@ namespace ExplorerWindowCleaner
 
         private string _LocationUrl;
 
+        /// <summary>
+        /// パスを保持するが、スペシャルフォルダの場合はnullがはいる。
+        /// </summary>
         public string LocationUrl
         {
             get { return _LocationUrl; }
@@ -119,6 +122,10 @@ namespace ExplorerWindowCleaner
         }
 
         #endregion
+
+        /// <summary>
+        /// エクスプローラに渡すパスを取得する。
+        /// </summary>
         [JsonIgnore]
         public string LocationPath { get { return !IsSpecialFolder ? AppUtils.GetUNCPath(new Uri(LocationUrl).LocalPath) : LocationName; } }
         

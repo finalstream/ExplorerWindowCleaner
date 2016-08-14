@@ -18,6 +18,7 @@ namespace ExplorerWindowCleaner
             ExpireInterval = TimeSpan.FromHours(5);
             ExportLimitNum = 30;
             IsNotifyCloseWindow = true;
+            IsMouseHook = true;
         }
 
         public TimeSpan Interval { get; set; }
@@ -28,6 +29,7 @@ namespace ExplorerWindowCleaner
         public TimeSpan ExpireInterval { get; set; }
         public int ExportLimitNum { get; set; }
         public bool IsNotifyCloseWindow { get; set; }
+        public bool IsMouseHook { get; set; }
         
 
         protected override void UpdateCore<T>(T config)
@@ -42,6 +44,7 @@ namespace ExplorerWindowCleaner
             ExpireInterval = appConfig.ExpireInterval;
             ExportLimitNum = appConfig.ExportLimitNum;
             IsNotifyCloseWindow = appConfig.IsNotifyCloseWindow;
+            IsMouseHook = appConfig.IsMouseHook;
         }
     }
 }

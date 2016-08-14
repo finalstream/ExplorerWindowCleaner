@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using ExplorerWindowCleaner.Actions;
+using ExplorerWindowCleaner.Properties;
 using FinalstreamCommons.Windows;
 using Firk.Core;
 using Firk.Core.Actions;
@@ -23,6 +24,7 @@ namespace ExplorerWindowCleaner
         private Queue<ClipboardHistoryItem> _clipboardItemQueue;
         private ClipboardMonitor _clipboardMonitor;
         private ContextMenuStrip _contextMenuClipboardHistories;
+        private ContextMenuStrip _contextMenuShortcuts;
         private ExplorerCleaner _explorerCleaner;
         private GlobalMouseHook _globalMouseHook;
 
@@ -63,19 +65,72 @@ namespace ExplorerWindowCleaner
             DisposableCollection.Add(_actionExecuter);
             ResetBackgroundWorker(AppConfig.Interval, new BackgroundAction[] {new CleanerAction(this)});
 
-            _clipboardItemQueue = new Queue<ClipboardHistoryItem>();
-            RestoreClipboardHistories();
-
-            _clipboardMonitor = new ClipboardMonitor();
-            _clipboardMonitor.ClipboardChanged += (sender, args) =>
+            if (AppConfig.IsMouseHook)
             {
-                var clipboardItem = new ClipboardHistoryItem(args.DataObject);
-                if (!string.IsNullOrEmpty(clipboardItem.GetText())
-                    && !_clipboardItemQueue.Select(x => x.GetText()).Contains(clipboardItem.GetText()))
-                    _clipboardItemQueue.Enqueue(clipboardItem);
-                if (_clipboardItemQueue.Count == 11) _clipboardItemQueue.Dequeue();
-            };
+                _clipboardItemQueue = new Queue<ClipboardHistoryItem>();
+                RestoreClipboardHistories();
 
+                MonitoringClipboard();
+
+                CreateShortcutContextMenu();
+                CreateClipboardContextMenu();
+
+                _globalMouseHook = new GlobalMouseHook();
+                _globalMouseHook.MouseHooked += (sender, args) =>
+                {
+                    if (args.MouseButton == MouseButtons.Left)
+                    {
+                        _contextMenuClipboardHistories.Close(ToolStripDropDownCloseReason.AppFocusChange);
+                        _contextMenuShortcuts.Close(ToolStripDropDownCloseReason.AppFocusChange);
+                    }
+
+                    if (args.IsDoubleClick)
+                    {
+                        if (args.MouseButton == MouseButtons.Right)
+                        {
+                            _contextMenuClipboardHistories.Show(args.Point);
+                        }
+                        else if (args.MouseButton == MouseButtons.Left && args.IsDesktop)
+                        {
+                            _contextMenuShortcuts.Show(args.Point);
+                        }
+                        Debug.WriteLine("DoubleClick Mouse.");
+                    }
+                };
+            }
+        }
+
+        private void CreateShortcutContextMenu()
+        {
+            _contextMenuShortcuts = new ContextMenuStrip();
+            _contextMenuShortcuts.Opening += (sender, args) =>
+            {
+                _contextMenuShortcuts.Items.Clear();
+                _contextMenuShortcuts.Items.Add("Explorer", null, (o, eventArgs) => _explorerCleaner.OpenExplorer(""));
+                _contextMenuShortcuts.Items.Add(new ToolStripSeparator());
+
+                var closedExplorers = _explorerCleaner.ClosedExplorers.OrderByDescending(x => x.IsFavorited)
+                    .ThenByDescending(x => x.LastUpdateDateTime).Take(10);
+
+                foreach (var closedExplorer in closedExplorers)
+                {
+                    var item = new ToolStripMenuItem(closedExplorer.LocationPath);
+                    item.Image = closedExplorer.IsFavorited ? Resources.favorite : null;
+                    item.Click += (o, eventArgs) => _explorerCleaner.OpenExplorer(closedExplorer.LocationPath);
+                    _contextMenuShortcuts.Items.Add(item);
+                }
+            };
+            _contextMenuShortcuts.Closing += (sender, args) =>
+            {
+                // 任意のクリックで閉じるが、カーソルがコンテキストメニューにあるときは閉じない（イベントが消えるので）
+                if (args.CloseReason == ToolStripDropDownCloseReason.AppFocusChange &&
+                    _contextMenuShortcuts.ClientRectangle.Contains(
+                        _contextMenuShortcuts.PointToClient(Cursor.Position))) args.Cancel = true;
+            };
+        }
+
+        private void CreateClipboardContextMenu()
+        {
             _contextMenuClipboardHistories = new ContextMenuStrip();
             _contextMenuClipboardHistories.Opening += (sender, args) =>
             {
@@ -106,20 +161,18 @@ namespace ExplorerWindowCleaner
                     _contextMenuClipboardHistories.ClientRectangle.Contains(
                         _contextMenuClipboardHistories.PointToClient(Cursor.Position))) args.Cancel = true;
             };
+        }
 
-            _globalMouseHook = new GlobalMouseHook();
-            _globalMouseHook.MouseHooked += (sender, args) =>
+        private void MonitoringClipboard()
+        {
+            _clipboardMonitor = new ClipboardMonitor();
+            _clipboardMonitor.ClipboardChanged += (sender, args) =>
             {
-                if (args.MouseButton == MouseButtons.Left)
-                    _contextMenuClipboardHistories.Close(ToolStripDropDownCloseReason.AppFocusChange);
-                if (args.IsDoubleClick)
-                {
-                    if (args.MouseButton == MouseButtons.Right)
-                    {
-                        _contextMenuClipboardHistories.Show(args.Point);
-                    }
-                    Debug.WriteLine("DoubleClick Mouse.");
-                }
+                var clipboardItem = new ClipboardHistoryItem(args.DataObject);
+                if (!string.IsNullOrEmpty(clipboardItem.GetText())
+                    && !_clipboardItemQueue.Select(x => x.GetText()).Contains(clipboardItem.GetText()))
+                    _clipboardItemQueue.Enqueue(clipboardItem);
+                if (_clipboardItemQueue.Count == 11) _clipboardItemQueue.Dequeue();
             };
         }
 
@@ -128,7 +181,8 @@ namespace ExplorerWindowCleaner
             if (!File.Exists(ClipboardFileName)) return;
             var clipboardHistories = JsonConvert.DeserializeObject<string[]>(File.ReadAllText(ClipboardFileName));
             if (clipboardHistories == null) return;
-            _clipboardItemQueue = new Queue<ClipboardHistoryItem>(clipboardHistories.Select(x=>new ClipboardHistoryItem(x)));
+            _clipboardItemQueue =
+                new Queue<ClipboardHistoryItem>(clipboardHistories.Select(x => new ClipboardHistoryItem(x)));
         }
 
         protected override void FinalizeCore()
@@ -139,7 +193,8 @@ namespace ExplorerWindowCleaner
 
         private void SaveClipboardHistories()
         {
-            var clipboardSerialized = JsonConvert.SerializeObject(_clipboardItemQueue.Select(x=>x.GetText()), Formatting.Indented);
+            var clipboardSerialized = JsonConvert.SerializeObject(_clipboardItemQueue.Select(x => x.GetText()),
+                Formatting.Indented);
             File.WriteAllText(ClipboardFileName, clipboardSerialized);
         }
 
