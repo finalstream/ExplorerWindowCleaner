@@ -94,6 +94,7 @@ namespace ExplorerWindowCleaner
                         else if (args.MouseButton == MouseButtons.Left && args.IsDesktop)
                         {
                             _contextMenuShortcuts.Show(args.Point);
+                            Debug.WriteLine($"Show Shortcut Menu. {args.Point}");
                         }
                         Debug.WriteLine("DoubleClick Mouse.");
                     }
@@ -131,6 +132,7 @@ namespace ExplorerWindowCleaner
                             (o, eventArgs) => shortcutItem.Exec());
                     }
                 }
+                args.Cancel = false;
             };
             _contextMenuShortcuts.Closing += (sender, args) =>
             {

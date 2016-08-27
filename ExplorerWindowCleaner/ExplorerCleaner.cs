@@ -332,6 +332,7 @@ namespace ExplorerWindowCleaner
 
         public void AddOrUpdateClosedDictionary(Explorer explorer)
         {
+            if (string.IsNullOrEmpty(explorer.LocationName) && string.IsNullOrEmpty(explorer.LocationUrl)) return; // 不明なemptyはすてる
             _closedExplorerDic.AddOrUpdate(explorer.LocationKey,
                 s =>
                 {
