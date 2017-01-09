@@ -18,7 +18,7 @@ namespace ExplorerWindowCleaner
 
         public override string ToString()
         {
-            return _textData.Length <= 100 ? _textData : _textData.Substring(0, 100) + " ...";
+            return _textData.Length <= 50 ? _textData : _textData.Substring(0, 50) + " ...";
         }
 
         public string GetText()
