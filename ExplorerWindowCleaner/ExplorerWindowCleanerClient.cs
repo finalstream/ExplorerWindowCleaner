@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ExplorerWindowCleaner.Actions;
 using ExplorerWindowCleaner.Properties;
@@ -89,6 +90,7 @@ namespace ExplorerWindowCleaner
                     {
                         if (args.MouseButton == MouseButtons.Right)
                         {
+                            _contextMenuClipboardHistories.Tag = GetForegroundWindow();
                             _contextMenuClipboardHistories.Show(args.Point);
                         }
                         else if (args.MouseButton == MouseButtons.Left && args.IsDesktop)
@@ -158,8 +160,10 @@ namespace ExplorerWindowCleaner
                 {
                     var item = new ToolStripMenuItem(c.ToString(), null, (o, eventArgs) =>
                     {
-                        Clipboard.SetText(c.GetText());
+                        Clipboard.SetText(c.GetText()); 
                         _contextMenuClipboardHistories.Close(ToolStripDropDownCloseReason.ItemClicked);
+                        SendCtrlV((IntPtr) _contextMenuClipboardHistories.Tag);
+
                     });
                     item.ToolTipText = c.GetText();
                     _contextMenuClipboardHistories.Items.Add(item);
@@ -176,6 +180,24 @@ namespace ExplorerWindowCleaner
                         _contextMenuClipboardHistories.PointToClient(Cursor.Position))) args.Cancel = true;
             };
         }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static public extern IntPtr GetForegroundWindow();
+
+        // import the function in your class
+        [DllImport("User32.dll")]
+        static extern int SetForegroundWindow(IntPtr point);
+
+        private void SendCtrlV(IntPtr hWnd)
+        {
+            SetForegroundWindow(hWnd);
+
+            SendKeys.SendWait("^{v}");
+
+        }
+
+
+
 
         private void MonitoringClipboard()
         {
