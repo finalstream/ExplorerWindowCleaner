@@ -13,17 +13,17 @@ namespace ExplorerWindowCleaner
 
         public ClipboardHistoryItem(string text)
         {
-            _textData = text;
+            _textData = text.Trim();
         }
 
         public override string ToString()
         {
-            return _textData.Length <= 50 ? _textData : _textData.Substring(0, 50) + " ...";
+            return this.GetText().Length <= 50 ? this.GetText() : this.GetText().Substring(0, 50) + " ...";
         }
 
         public string GetText()
         {
-            return _textData;
+            return _textData.Trim();
         }
 
         private string GetText(IDataObject dataObject)

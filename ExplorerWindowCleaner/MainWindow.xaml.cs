@@ -1,4 +1,8 @@
-﻿using System;
+﻿using FinalstreamCommons.Extensions;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using Newtonsoft.Json;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,10 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using FinalstreamCommons.Extensions;
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
-using Newtonsoft.Json;
+using System.Windows.Interop;
 
 namespace ExplorerWindowCleaner 
 {
@@ -26,13 +27,20 @@ namespace ExplorerWindowCleaner
         private static string ClosedWindows = "ClosedWindows";
         private static string NowWindows = "NowWindows";
         private readonly ExplorerWindowCleanerClient _ewClient;
+        public IntPtr Hwnd { get; private set; }
 
         public MainWindow(ExplorerWindowCleanerClient ewClient)
         {
             _ewClient = ewClient;
+            
             InitializeComponent();
 
             DataContext = this;
+
+            Hwnd = new WindowInteropHelper(this).Handle;
+            _ewClient.SetWindowHwnd(Hwnd);
+            _ewClient.SetWindow(this);
+
 
             this.Closing += (sender, args) =>
             {
