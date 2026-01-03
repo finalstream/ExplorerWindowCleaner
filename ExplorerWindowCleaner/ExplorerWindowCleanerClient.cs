@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Application;
 
 namespace ExplorerWindowCleaner
@@ -93,7 +94,7 @@ namespace ExplorerWindowCleaner
                 _globalMouseHook = new GlobalMouseHook();
                 _globalMouseHook.MouseHooked += (sender, args) =>
                 {
-                    if (args.MouseButton == MouseButtons.Left)
+                    if (args.MouseButton == MouseButtons.Left && args.IsDesktop)
                     {
                         //_contextMenuClipboardHistories.Close(ToolStripDropDownCloseReason.AppFocusChange);
                         Application.Current.Dispatcher.BeginInvoke(new Action(() =>
@@ -102,9 +103,12 @@ namespace ExplorerWindowCleaner
 
                             // メニュー外クリックだけ閉じる
                             //if (!_clipboardMenuScreenRect.Contains(p))
-                            //    _clipboardMenu.IsOpen = false;
+                            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                    _clipboardMenu.IsOpen = false;
+                            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
-                                _contextMenuShortcuts.Close(ToolStripDropDownCloseReason.AppFocusChange);
+                            _contextMenuShortcuts.Close(ToolStripDropDownCloseReason.AppFocusChange);
                         }));
                         
                     }
@@ -126,7 +130,7 @@ namespace ExplorerWindowCleaner
                             var clipboardHistoriesItem = new System.Windows.Controls.MenuItem
                             {
                                 Header = "Clipboard Histories",
-                               
+                               IsEnabled = false
                             };
                              clipboardHistoriesItem.Click += (s, e) =>
                              {
@@ -151,11 +155,7 @@ namespace ExplorerWindowCleaner
                                     _pendingHwnd = _windowHwnd;
                                     _pendingFromClick = true;
 
-                                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        SetClipboardTextWithRetry(_pendingText); // ← WPFなら System.Windows.Clipboard を推奨（後述）
-                                        SendCtrlV(_pendingHwnd);
-                                    }), System.Windows.Threading.DispatcherPriority.Background);
+                                    
 
                                     _clipboardMenu.IsOpen = false; // 閉じる → Closed で処理する
                                 };
@@ -239,13 +239,14 @@ namespace ExplorerWindowCleaner
 
             _clipboardMenu.Closed += (s, e) =>
             {
-                if (!_pendingFromClick || _pendingText == null) return;
+                if (!_pendingFromClick) return;
                 _pendingFromClick = false;
 
-                var text = _pendingText;
-                var hwnd = _pendingHwnd;
-                _pendingText = null;
-                _pendingHwnd = IntPtr.Zero;
+                SetClipboardTextWithRetry(_pendingText);
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    SendCtrlV(_pendingHwnd);
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
                 // 閉じた後の次ターンで実行（フォーカス戻り待ち）
                 //Application.Current.Dispatcher.BeginInvoke(new Action(() =>
@@ -326,17 +327,33 @@ namespace ExplorerWindowCleaner
             };*/
         }
 
-        private static void SetClipboardTextWithRetry(string text, int retry = 8)
+        private static void SetClipboardTextWithRetry(string text, int retry = 12)
         {
+            if (text == null) text = "";
+
+            int delayMs = 5;
+
             for (int i = 0; i < retry; i++)
             {
-                try { System.Windows.Clipboard.SetText(text); return; }
+                try
+                {
+                    System.Windows.Clipboard.SetText(text);
+                    return;
+                }
+                catch (System.Runtime.InteropServices.COMException ex) when ((uint)ex.HResult == 0x800401D0) // CLIPBRD_E_CANT_OPEN
+                {
+                    System.Threading.Thread.Sleep(delayMs);
+                    delayMs = Math.Min(delayMs * 2, 80); // 5,10,20,40,80...
+                }
                 catch (System.Runtime.InteropServices.ExternalException)
                 {
-                    System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(delayMs);
+                    delayMs = Math.Min(delayMs * 2, 80);
                 }
             }
-            System.Windows.Clipboard.SetText(text);
+
+            // ここで例外投げて落とすのはやめる（必要ならログ出して諦める）
+            // throw; ←しない
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -377,6 +394,7 @@ namespace ExplorerWindowCleaner
                     }
 
                     _clipboardItemQueue.Enqueue(item);
+                    if (_clipboardItemQueue.Count == 501) _clipboardItemQueue.Dequeue();
                 }
 
                 SaveClipboardHistories();
