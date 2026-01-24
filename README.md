@@ -1,6 +1,7 @@
 # ExplorerWindowCleaner
 
-[![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner)　[![GitHub release](https://img.shields.io/github/release/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/blob/master/LICENSE)
+[![Build status](https://ci.appveyor.com/api/projects/status/tiy31lavkila6ncy/branch/master?svg=true)](https://ci.appveyor.com/project/finalstream/explorerwindowcleaner/branch/master)
+　[![GitHub release](https://img.shields.io/github/release/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/releases/latest)　[![GitHub license](https://img.shields.io/github/license/finalstream/ExplorerWindowCleaner.svg)](https://github.com/finalstream/ExplorerWindowCleaner/blob/master/LICENSE)
 
 エクスプローラで開いたウインドウが重複した場合に自動でクローズしたりするツールです。  
 起動後、タスクトレイに常駐してエクスプローラで開いたウインドウで重複したパスが存在した場合、古いほうのウインドウを閉じます。そのほかにもエクスプローラ専用ランチャー的な機能がいろいろあります。
