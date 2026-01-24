@@ -165,6 +165,7 @@ namespace ExplorerWindowCleaner
                             _clipboardMenu.Items.RemoveAt(_clipboardMenu.Items.Count - 1);
                                 _clipboardMenu.MaxHeight = SystemParameters.WorkArea.Height * 0.8;
                                 _clipboardMenu.IsOpen = true;
+                                ((FrameworkElement)_clipboardMenu.Items[0]).BringIntoView();
                             }));
                         }
                         else if (args.MouseButton == MouseButtons.Left && args.IsDesktop)
@@ -327,11 +328,11 @@ namespace ExplorerWindowCleaner
             };*/
         }
 
-        private static void SetClipboardTextWithRetry(string text, int retry = 12)
+        private static void SetClipboardTextWithRetry(string text, int retry = 5)
         {
             if (text == null) text = "";
 
-            int delayMs = 5;
+            int delayMs = 10;
 
             for (int i = 0; i < retry; i++)
             {
@@ -343,12 +344,12 @@ namespace ExplorerWindowCleaner
                 catch (System.Runtime.InteropServices.COMException ex) when ((uint)ex.HResult == 0x800401D0) // CLIPBRD_E_CANT_OPEN
                 {
                     System.Threading.Thread.Sleep(delayMs);
-                    delayMs = Math.Min(delayMs * 2, 80); // 5,10,20,40,80...
+                    delayMs += delayMs * i;
                 }
                 catch (System.Runtime.InteropServices.ExternalException)
                 {
                     System.Threading.Thread.Sleep(delayMs);
-                    delayMs = Math.Min(delayMs * 2, 80);
+                    delayMs += delayMs * i;
                 }
             }
 
@@ -372,7 +373,7 @@ namespace ExplorerWindowCleaner
         }
 
 
-
+        private const int MaxItems = 200;
         private readonly object _queueLock = new object();
         private void MonitoringClipboard()
         {
@@ -394,7 +395,8 @@ namespace ExplorerWindowCleaner
                     }
 
                     _clipboardItemQueue.Enqueue(item);
-                    if (_clipboardItemQueue.Count == 501) _clipboardItemQueue.Dequeue();
+                    while (_clipboardItemQueue.Count > MaxItems)
+                        _clipboardItemQueue.Dequeue();
                 }
 
                 SaveClipboardHistories();
