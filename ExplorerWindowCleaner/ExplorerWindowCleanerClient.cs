@@ -190,7 +190,7 @@ namespace ExplorerWindowCleaner
                 _contextMenuShortcuts.Items.Add(new ToolStripSeparator());
 
                 var closedExplorers = _explorerCleaner.ClosedExplorers.OrderByDescending(x => x.IsFavorited)
-                    .ThenByDescending(x => x.LastUpdateDateTime).Take(10);
+                    .ThenByDescending(x => x.LastUpdateDateTime).Take(20);
 
                 foreach (var closedExplorer in closedExplorers)
                 {
